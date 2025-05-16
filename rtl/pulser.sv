@@ -195,15 +195,18 @@ module pulser (
   //---------------------------------------------------------------------------------------------
   always_comb begin
     pulse_cnt_d = pulse_cnt_q;
+    pulse_counter_done = '0;
 
-    if (state_q != state_d) begin
-      pulse_cnt_d = '0;
-    end else if (pulse_done) begin
-      pulse_cnt_d = pulse_cnt_q + 1;
+    if (pulse_done) begin
+      if (pulse_cnt_q == (current_count_target - 1)) begin
+        pulse_counter_done = 1'b1;
+        pulse_cnt_d = '0;
+      end else begin
+        pulse_cnt_d = pulse_cnt_q + 1;
+      end
     end
   end
 
-  assign pulse_counter_done = (pulse_cnt_q == current_count_target);
   assign counter_enable     = (state_q == RUN_F1 || state_q == RUN_F2 || state_q == RUN_STOP);
 
   //---------------------------------------------------------------------------------------------
@@ -248,13 +251,11 @@ module pulser (
 
     case (state_q)
       RUN_F1, RUN_F2: begin
-        // if (state_d != RUN_STOP && state_d != DONE) begin
           if (invert_out_i == 1'b1) begin
             pulse_o = ~(clk_count < current_switch);
           end else begin
             pulse_o = clk_count < current_switch;
           end
-        // end
       end
       RUN_STOP: begin
         if (invert_out_i == 1'b1) begin
@@ -262,6 +263,12 @@ module pulser (
         end else begin
           pulse_o = ~(clk_count < current_switch);
         end
+      end
+      DONE: begin
+        pulse_o = idle_out_i;
+      end
+      IDLE: begin
+        pulse_o = idle_out_i;
       end
       default: begin
         pulse_o = idle_out_i;
