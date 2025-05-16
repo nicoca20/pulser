@@ -1,33 +1,34 @@
 //-----------------------------------------------------------------------------------------------
 // File        : pulser.sv
 // Author      : Nico Canzani <ncanzani@student.ethz.ch>
-// Description : Single Pulser Module
+// Description : Top-Level Wrapper for Multiple Pulse Generators
 //
-// This module implements a configurable pulse generator capable of producing output waveforms
-// based on three sequential phases: F1, F2, and STOP. Each phase is controlled by:
-//   - A count of repetitions (pulse count)
-//   - A cycle duration (end count)
-//   - A duty ratio defined by a switch point
+// This module integrates multiple instances of the `pulser_core` module and exposes a unified
+// register interface over the OBI (Open Bus Interface) protocol.
 //
-// The module supports:
-//   - Configurable polarity and idle output level
-//   - FSM-driven pulse sequencing with internal cycle counters
-//   - Synchronous control via `start_i` and `stop_i`
+// Key Features:
+//   - Parameterizable number of pulser instances (`N_PULSER_INST`)
+//   - Register-mapped control and configuration interface per pulser
+//   - Instance selection and register decode via address bits
+//   - Synchronous OBI protocol handshake handling (req, gnt, rvalid, etc.)
+//   - Centralized command register for starting/stopping multiple pulsers simultaneously
 //
-// PHASE BEHAVIOR:
-//   - **F1 Phase**: Repeats a pulse waveform for `f1_cnt_i` cycles, with each cycle lasting
-//     `f1_end_i` clocks and toggling at `f1_switch_i`.
-//   - **F2 Phase**: Optional second waveform phase, similar to F1, using `f2_*` parameters.
-//   - **STOP Phase**: Final phase used to output additional waveform cycles after F1/F2.
-//       * Uses the same waveform shape as the last active phase (F2 if used, otherwise F1).
-//       * Runs for `stop_cnt_i` cycles, each of `*_end_i` clocks and switching at `*_switch_i`.
+// REGISTER MAP (per instance, offset by upper address bits):
+//   - 0x00 : CMD         → Start/Stop pulses (bit-encoded per instance)
+//   - 0x04 : F1_CFG      → {f1_end, f1_switch}
+//   - 0x08 : F2_CFG      → {f2_end, f2_switch}
+//   - 0x0C : COUNT_CFG   → {stop_count, f2_count, f1_count}
+//   - 0x10 : STATUS      → {ready, state}
+//   - 0x14 : OUT_CTRL    → {idle_out, invert_out}
 //
-// Output pulse timing is determined dynamically based on active phase settings.
-// FSM handles transitions safely, including early termination if `stop_i` is asserted.
+// Each pulser is independently configurable and drives its own `pulse_o` output.
+// The wrapper tracks FSM states and readiness status from each instance,
+// and handles proper decoding, storage, and routing of configuration data.
 //
-// Dependencies: common_cells (for FF and counter modules)
+// Dependencies:
+//   - `pulser_core.sv` (pulser logic)
+//   - `common_cells/registers.svh` (flip-flop and register macros)
 //
-// Typical use: Instantiated as part of a multi-channel pulse controller in `pulser_wrapper.sv`
 // Copyright 2025 ETH Zurich and University of Bologna.
 // Solderpad Hardware License, Version 0.51, see LICENSE for details.
 // SPDX-License-Identifier: SHL-0.51
@@ -37,243 +38,238 @@
 // Include common register macros (e.g., `FF for flip-flops)
 //-----------------------------------------------------------------------------------------------
 `include "common_cells/registers.svh"
-//-----------------------------------------------------------------------------------------------
-// Single Pulser Module
-// Controls a configurable pulse generation sequence consisting of F1, F2, and STOP phases
-//-----------------------------------------------------------------------------------------------
-module pulser (
-  input  logic        clk_i,
-  input  logic        rst_ni,
 
-  input  logic        start_i,
-  input  logic        stop_i,
-  input  logic [7:0]  f1_cnt_i,
-  input  logic [7:0]  f2_cnt_i,
-  input  logic [7:0]  stop_cnt_i,
-  input  logic [15:0] f1_end_i,
-  input  logic [15:0] f1_switch_i,
-  input  logic [15:0] f2_end_i,
-  input  logic [15:0] f2_switch_i,
-  input  logic        invert_out_i,
-  input  logic        idle_out_i,
+//-----------------------------------------------------------------------------------------------
+// Pulser Register Map Definitions (relative to BASEADDR)
+//-----------------------------------------------------------------------------------------------
+`define REG_PULSER_CMD           8'h00  // Start/Stop command register
+`define REG_PULSER_F1_CFG        8'h04  // F1 Switch and End configuration
+`define REG_PULSER_F2_CFG        8'h08  // F2 Switch and End configuration
+`define REG_PULSER_COUNT_CFG     8'h0C  // F1/F2/Stop count configuration
+`define REG_PULSER_STATUS        8'h10  // State + Ready status
+`define REG_PULSER_OUT_CTRL      8'h14  // Control idle and invert output
 
-  output logic        pulse_o,
-  output logic [2:0]  state_o
+//-----------------------------------------------------------------------------------------------
+// Top-level wrapper module for multiple pulser instances
+//-----------------------------------------------------------------------------------------------
+module pulser #(
+  parameter obi_pkg::obi_cfg_t ObiCfg               = obi_pkg::ObiDefaultConfig,
+  parameter type               obi_req_t            = logic,
+  parameter type               obi_rsp_t            = logic,
+  parameter int                N_PULSER_INST        = 4,
+  parameter int                PULSER_SEL_ADDR_WIDTH = 2
+) (
+  input  logic clk_i,
+  input  logic rst_ni,
+
+  input  obi_req_t obi_req_i,
+  output obi_rsp_t obi_rsp_o,
+
+  output logic [N_PULSER_INST-1:0] pulse_o
 );
 
-  //---------------------------------------------------------------------------------------------
-  // State Machine Declaration
-  //---------------------------------------------------------------------------------------------
-  typedef enum logic [2:0] {
-    IDLE,
-    RUN_F1,
-    RUN_F2,
-    RUN_STOP,
-    DONE
-  } state_e;
+  //-----------------------------------------------------------------------------------------------
+  // Internal OBI handshake registers for tracking request context
+  //-----------------------------------------------------------------------------------------------
+  logic req_d, req_q;
+  logic we_d, we_q;
+  logic [ObiCfg.AddrWidth-1:0] addr_d, addr_q;
+  logic [ObiCfg.IdWidth-1:0]   id_d, id_q;
+  logic [ObiCfg.DataWidth-1:0] wdata_d, wdata_q;
 
-  state_e state_d, state_q;
+  logic [ObiCfg.DataWidth-1:0] resp_data;
+  logic rsp_err;
 
-  //---------------------------------------------------------------------------------------------
-  // Pulse Counter
-  //---------------------------------------------------------------------------------------------
-  logic       pulse_counter_done;
-  logic [7:0] pulse_cnt_d, pulse_cnt_q;
+  //-----------------------------------------------------------------------------------------------
+  // Address decode signals (for register addressing and instance selection)
+  //-----------------------------------------------------------------------------------------------
+  logic [7:0] addr_obi;
+  logic [PULSER_SEL_ADDR_WIDTH-1:0] pulser_sel;
+  logic [4:0] reg_addr;
 
-  logic [7:0] current_count_target;
+  //-----------------------------------------------------------------------------------------------
+  // Per-pulser configuration registers (D/Q pairs for FFs)
+  //-----------------------------------------------------------------------------------------------
+  logic [N_PULSER_INST-1:0][15:0] f1_end_q, f1_end_d;
+  logic [N_PULSER_INST-1:0][15:0] f1_switch_q, f1_switch_d;
+  logic [N_PULSER_INST-1:0][15:0] f2_end_q, f2_end_d;
+  logic [N_PULSER_INST-1:0][15:0] f2_switch_q, f2_switch_d;
+  logic [N_PULSER_INST-1:0][7:0]  f1_count_q, f1_count_d;
+  logic [N_PULSER_INST-1:0][7:0]  f2_count_q, f2_count_d;
+  logic [N_PULSER_INST-1:0][7:0]  stop_count_q, stop_count_d;
 
-  //---------------------------------------------------------------------------------------------
-  // Clock Cycle Control Signals
-  //---------------------------------------------------------------------------------------------
-  logic [15:0] current_end;
-  logic [15:0] current_switch;
-  logic [15:0] clk_count;
-  logic        pulse_done;
-  logic        counter_enable;
-  logic        rst_counter;
+  logic [N_PULSER_INST-1:0]       idle_out_q, idle_out_d;
+  logic [N_PULSER_INST-1:0]       invert_out_q, invert_out_d;
 
-  //---------------------------------------------------------------------------------------------
-  // State and Pulse Counter Flip-Flops
-  //---------------------------------------------------------------------------------------------
-  `FF(state_q     , state_d     , IDLE)
-  `FF(pulse_cnt_q , pulse_cnt_d , '0)
+  logic [N_PULSER_INST-1:0][2:0]  state;
+  logic [N_PULSER_INST-1:0]       ready;
 
-  //---------------------------------------------------------------------------------------------
-  // Clock Cycle Counter Instance
-  // Generates a free-running counter controlled by FSM state and resets
-  //---------------------------------------------------------------------------------------------
-  counter #(
-    .WIDTH($bits(clk_count)),
-    .STICKY_OVERFLOW(1'b0)
-  ) i_counter_common_cells (
-    .clk_i      (clk_i),
-    .rst_ni     (rst_ni),
-    .clear_i    (1'b0),
-    .en_i       (counter_enable),
-    .load_i     (rst_counter),
-    .down_i     (1'b0),
-    .d_i        ('0),
-    .q_o        (clk_count),
-    .overflow_o ()
-  );
+  logic [N_PULSER_INST-1:0]       start_pulse, stop_pulse;
 
-  assign state_o = state_q;
+  //-----------------------------------------------------------------------------------------------
+  // Register updates using `FF macro for flip-flops
+  //-----------------------------------------------------------------------------------------------
+  `FF(req_q   , req_d   , '0);
+  `FF(id_q    , id_d    , '0);
+  `FF(we_q    , we_d    , '0);
+  `FF(wdata_q , wdata_d , '0);
+  `FF(addr_q  , addr_d  , '0);
 
-  //---------------------------------------------------------------------------------------------
-  // Counter Reset and Pulse Done Logic
-  //---------------------------------------------------------------------------------------------
-  assign rst_counter = pulse_done | stop_i | !counter_enable;
-  assign pulse_done  = clk_count == (current_end - 1);
+  `FF(f1_end_q     , f1_end_d     , '0)
+  `FF(f1_switch_q  , f1_switch_d  , '0)
+  `FF(f2_end_q     , f2_end_d     , '0)
+  `FF(f2_switch_q  , f2_switch_d  , '0)
+  `FF(f1_count_q   , f1_count_d   , '0)
+  `FF(f2_count_q   , f2_count_d   , '0)
+  `FF(stop_count_q , stop_count_d , '0)
 
-  //---------------------------------------------------------------------------------------------
-  // State Machine Logic
-  // Transitions through F1 → F2 → STOP → DONE based on pulse counts and phase completion
-  //---------------------------------------------------------------------------------------------
+  `FF(invert_out_q , invert_out_d , '0)
+  `FF(idle_out_q   , idle_out_d   , '0)
+
+  //-----------------------------------------------------------------------------------------------
+  // Capture OBI request on input
+  //-----------------------------------------------------------------------------------------------
+  assign req_d    = obi_req_i.req;
+  assign id_d     = obi_req_i.a.aid;
+  assign we_d     = obi_req_i.a.we;
+  assign addr_d   = obi_req_i.a.addr;
+  assign wdata_d  = obi_req_i.a.wdata;
+
+  //-----------------------------------------------------------------------------------------------
+  // OBI response logic
+  //-----------------------------------------------------------------------------------------------
+  assign obi_rsp_o.gnt          = obi_req_i.req;
+  assign obi_rsp_o.rvalid       = req_q;
+  assign obi_rsp_o.r.rdata      = resp_data;
+  assign obi_rsp_o.r.rid        = id_q;
+  assign obi_rsp_o.r.err        = rsp_err;
+  assign obi_rsp_o.r.r_optional = '0;
+
+  //-----------------------------------------------------------------------------------------------
+  // Address decoding (supports multiple pulsers via upper bits)
+  //-----------------------------------------------------------------------------------------------
+  assign addr_obi   = addr_q[7:0];
+  assign pulser_sel = addr_obi[5 + PULSER_SEL_ADDR_WIDTH - 1 : 5];
+  assign reg_addr   = addr_obi[4:0];
+
+  //-----------------------------------------------------------------------------------------------
+  // Command register decoding: generate start/stop pulses for instances
+  //-----------------------------------------------------------------------------------------------
   always_comb begin
-    state_d = state_q;
+    start_pulse = '0;
+    stop_pulse  = '0;
 
-    if (stop_i) begin
-      state_d = IDLE;
-    end else begin
-      case (state_q)
-        IDLE: begin
-          if (start_i) begin
-            if (f1_cnt_i > 0 && f1_end_i > 0) begin
-              state_d = RUN_F1;
-            end else if (f2_cnt_i > 0 && f2_end_i > 0) begin
-              state_d = RUN_F2;
-            end else if (stop_cnt_i > 0) begin
-              state_d = RUN_STOP;
-            end else begin
-              state_d = DONE;
-            end
+    if (req_q && we_q && addr_obi == 5'h00) begin
+      start_pulse = wdata_q[N_PULSER_INST-1:0];
+      stop_pulse  = wdata_q[2*N_PULSER_INST-1 : N_PULSER_INST];
+    end
+  end
+
+  //-----------------------------------------------------------------------------------------------
+  // Write logic for configuration registers
+  //-----------------------------------------------------------------------------------------------
+  always_comb begin
+    f1_end_d      = f1_end_q;
+    f1_switch_d   = f1_switch_q;
+    f2_end_d      = f2_end_q;
+    f2_switch_d   = f2_switch_q;
+    f1_count_d    = f1_count_q;
+    f2_count_d    = f2_count_q;
+    stop_count_d  = stop_count_q;
+    invert_out_d  = invert_out_q;
+    idle_out_d    = idle_out_q;
+
+    if (req_q && we_q) begin
+      if (ready[pulser_sel]) begin
+        case (reg_addr)
+          `REG_PULSER_F1_CFG: begin
+            f1_switch_d[pulser_sel] = wdata_q[15:0];
+            f1_end_d[pulser_sel]    = wdata_q[31:16];
           end
-        end
-
-        RUN_F1: begin
-          if (pulse_counter_done) begin
-            if (f2_cnt_i > 0 && f2_end_i > 0) begin
-              state_d = RUN_F2;
-            end else if (stop_cnt_i > 0) begin
-              state_d = RUN_STOP;
-            end else begin
-              state_d = DONE;
-            end
+          `REG_PULSER_F2_CFG: begin
+            f2_switch_d[pulser_sel] = wdata_q[15:0];
+            f2_end_d[pulser_sel]    = wdata_q[31:16];
           end
-        end
-
-        RUN_F2: begin
-          if (pulse_counter_done) begin
-            if (stop_cnt_i > 0) begin
-              state_d = RUN_STOP;
-            end else begin
-              state_d = DONE;
-            end
+          `REG_PULSER_COUNT_CFG: begin
+            f1_count_d[pulser_sel]   = wdata_q[7:0];
+            f2_count_d[pulser_sel]   = wdata_q[15:8];
+            stop_count_d[pulser_sel] = wdata_q[23:16];
           end
-        end
-
-        RUN_STOP: begin
-          if (pulse_counter_done) begin
-            state_d = DONE;
+          `REG_PULSER_OUT_CTRL: begin
+            invert_out_d[pulser_sel] = wdata_q[0];
+            idle_out_d[pulser_sel]   = wdata_q[1];
           end
-        end
+          default: ;
+        endcase
+      end
+    end
+  end
 
-        DONE: begin
-          state_d = IDLE;
-        end
+  //-----------------------------------------------------------------------------------------------
+  // Pulser instantiations
+  //-----------------------------------------------------------------------------------------------
+  for (genvar ii = 0; ii < N_PULSER_INST; ii++) begin : gen_pulsers
+    pulser_core i_pulser_core (
+      .clk_i          (clk_i),
+      .rst_ni         (rst_ni),
+      .start_i        (start_pulse[ii]),
+      .stop_i         (stop_pulse[ii]),
+      .f1_cnt_i       (f1_count_q[ii]),
+      .f2_cnt_i       (f2_count_q[ii]),
+      .stop_cnt_i     (stop_count_q[ii]),
+      .f1_end_i       (f1_end_q[ii]),
+      .f1_switch_i    (f1_switch_q[ii]),
+      .f2_end_i       (f2_end_q[ii]),
+      .f2_switch_i    (f2_switch_q[ii]),
+      .invert_out_i   (invert_out_q[ii]),
+      .idle_out_i     (idle_out_q[ii]),
+      .pulse_o        (pulse_o[ii]),
+      .state_o        (state[ii])
+    );
+  end
 
-        default: begin
-          state_d = IDLE;
-        end
+  //-----------------------------------------------------------------------------------------------
+  // READY signal: high when pulser is in IDLE or DONE state
+  //-----------------------------------------------------------------------------------------------
+  localparam IDLE_STATE = 3'd0;
+  localparam DONE_STATE = 3'd4;
+
+  always_comb begin
+    for (int i = 0; i < N_PULSER_INST; i++) begin
+      ready[i] = (state[i] == IDLE_STATE) || (state[i] == DONE_STATE);
+    end
+  end
+
+  //-----------------------------------------------------------------------------------------------
+  // Read logic for returning register values
+  //-----------------------------------------------------------------------------------------------
+  always_comb begin
+    resp_data = '0;
+    rsp_err = 1'b0;
+    if (req_q && !we_q) begin
+      case (reg_addr)
+        `REG_PULSER_CMD:        resp_data = '0;
+        `REG_PULSER_F1_CFG:     resp_data = {f1_end_q[pulser_sel], f1_switch_q[pulser_sel]};
+        `REG_PULSER_F2_CFG:     resp_data = {f2_end_q[pulser_sel], f2_switch_q[pulser_sel]};
+        `REG_PULSER_COUNT_CFG:  resp_data = {
+          {(ObiCfg.DataWidth - 3 * $bits(stop_count_q[0])){1'b0}},
+          stop_count_q[pulser_sel],
+          f2_count_q[pulser_sel],
+          f1_count_q[pulser_sel]
+        };
+        `REG_PULSER_STATUS:     resp_data = {
+          {(ObiCfg.DataWidth - $bits(state[0]) - $bits(ready[0])){1'b0}},
+          state[pulser_sel],
+          ready[pulser_sel]
+        };
+        `REG_PULSER_OUT_CTRL:   resp_data = {
+          {(ObiCfg.DataWidth - 2){1'b0}},
+          idle_out_d[pulser_sel],
+          invert_out_d[pulser_sel]
+        };
+        default:                resp_data = 32'hDEADBEEF;
       endcase
     end
-  end
-
-  //---------------------------------------------------------------------------------------------
-  // Pulse Count Logic
-  // Increments pulse counter each time a pulse completes
-  //---------------------------------------------------------------------------------------------
-  always_comb begin
-    pulse_cnt_d = pulse_cnt_q;
-    pulse_counter_done = '0;
-
-    if (pulse_done) begin
-      if (pulse_cnt_q == (current_count_target - 1)) begin
-        pulse_counter_done = 1'b1;
-        pulse_cnt_d = '0;
-      end else begin
-        pulse_cnt_d = pulse_cnt_q + 1;
-      end
-    end
-  end
-
-  assign counter_enable     = (state_q == RUN_F1 || state_q == RUN_F2 || state_q == RUN_STOP);
-
-  //---------------------------------------------------------------------------------------------
-  // Phase-Specific Timing Configuration
-  // Sets current_end, current_switch, and current_count_target for the active phase
-  //---------------------------------------------------------------------------------------------
-  always_comb begin
-    current_end          = '0;
-    current_switch       = '0;
-    current_count_target = '0;
-
-    case (state_q)
-      RUN_F1: begin
-        current_end          = f1_end_i;
-        current_switch       = f1_switch_i;
-        current_count_target = f1_cnt_i;
-      end
-      RUN_F2: begin
-        current_end          = f2_end_i;
-        current_switch       = f2_switch_i;
-        current_count_target = f2_cnt_i;
-      end
-      RUN_STOP: begin
-        current_end          = (f2_cnt_i > 0) ? f2_end_i    : f1_end_i;
-        current_switch       = (f2_cnt_i > 0) ? f2_switch_i : f1_switch_i;
-        current_count_target = stop_cnt_i;
-      end
-      default: begin
-        current_end          = '0;
-        current_switch       = '0;
-        current_count_target = '0;
-      end
-    endcase
-  end
-
-  //---------------------------------------------------------------------------------------------
-  // Output Pulse Logic
-  // Controls output signal based on current FSM state and polarity configuration
-  //---------------------------------------------------------------------------------------------
-  always_comb begin
-    pulse_o = idle_out_i;
-
-    case (state_q)
-      RUN_F1, RUN_F2: begin
-          if (invert_out_i == 1'b1) begin
-            pulse_o = ~(clk_count < current_switch);
-          end else begin
-            pulse_o = clk_count < current_switch;
-          end
-      end
-      RUN_STOP: begin
-        if (invert_out_i == 1'b1) begin
-          pulse_o = clk_count < current_switch;
-        end else begin
-          pulse_o = ~(clk_count < current_switch);
-        end
-      end
-      DONE: begin
-        pulse_o = idle_out_i;
-      end
-      IDLE: begin
-        pulse_o = idle_out_i;
-      end
-      default: begin
-        pulse_o = idle_out_i;
-      end
-    endcase
   end
 
 endmodule

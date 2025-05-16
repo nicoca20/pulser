@@ -41,7 +41,7 @@
   regwidth: "32",
   registers: [
     {
-      name: "PULSER_F1_CFG",
+      name: "F1_CFG",
       desc: "Phase F1 configuration: end and switch points",
       swaccess: "rw",
       hwaccess: "hro",
@@ -57,7 +57,7 @@
       ]
     },
     {
-      name: "PULSER_F2_CFG",
+      name: "F2_CFG",
       desc: "Phase F2 configuration: end and switch points",
       swaccess: "rw",
       hwaccess: "hro",
@@ -73,7 +73,7 @@
       ]
     },
     {
-      name: "PULSER_COUNT_CFG",
+      name: "COUNT_CFG",
       desc: "Configure number of pulses for each phase",
       swaccess: "rw",
       hwaccess: "hro",
@@ -93,7 +93,7 @@
       ]
     },
     {
-      name: "PULSER_STATUS",
+      name: "STATUS",
       desc: "Read state of pulser",
       swaccess: "ro",
       hwaccess: "hrw",
@@ -109,7 +109,7 @@
       ]
     },
     {
-      name: "PULSER_OUT_CTRL",
+      name: "OUT_CTRL",
       desc: "Set idle state of pulser and if pulse phase should be inverted",
       swaccess: "rw",
       hwaccess: "hro",
