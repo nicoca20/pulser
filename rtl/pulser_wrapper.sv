@@ -180,26 +180,28 @@ module pulser_wrapper #(
     idle_out_d    = idle_out_q;
 
     if (req_q && we_q) begin
-      case (reg_addr)
-        `REG_PULSER_F1_CFG: begin
-          f1_switch_d[pulser_sel] = wdata_q[15:0];
-          f1_end_d[pulser_sel]    = wdata_q[31:16];
-        end
-        `REG_PULSER_F2_CFG: begin
-          f2_switch_d[pulser_sel] = wdata_q[15:0];
-          f2_end_d[pulser_sel]    = wdata_q[31:16];
-        end
-        `REG_PULSER_COUNT_CFG: begin
-          f1_count_d[pulser_sel]   = wdata_q[7:0];
-          f2_count_d[pulser_sel]   = wdata_q[15:8];
-          stop_count_d[pulser_sel] = wdata_q[23:16];
-        end
-        `REG_PULSER_OUT_CTRL: begin
-          invert_out_d[pulser_sel] = wdata_q[0];
-          idle_out_d[pulser_sel]   = wdata_q[1];
-        end
-        default: ;
-      endcase
+      if (ready[pulser_sel]) begin
+        case (reg_addr)
+          `REG_PULSER_F1_CFG: begin
+            f1_switch_d[pulser_sel] = wdata_q[15:0];
+            f1_end_d[pulser_sel]    = wdata_q[31:16];
+          end
+          `REG_PULSER_F2_CFG: begin
+            f2_switch_d[pulser_sel] = wdata_q[15:0];
+            f2_end_d[pulser_sel]    = wdata_q[31:16];
+          end
+          `REG_PULSER_COUNT_CFG: begin
+            f1_count_d[pulser_sel]   = wdata_q[7:0];
+            f2_count_d[pulser_sel]   = wdata_q[15:8];
+            stop_count_d[pulser_sel] = wdata_q[23:16];
+          end
+          `REG_PULSER_OUT_CTRL: begin
+            invert_out_d[pulser_sel] = wdata_q[0];
+            idle_out_d[pulser_sel]   = wdata_q[1];
+          end
+          default: ;
+        endcase
+      end
     end
   end
 
