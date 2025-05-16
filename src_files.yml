@@ -1,0 +1,8 @@
+pulser:
+  incdirs: [
+    ./rtl,
+  ]
+  files: [
+    ./rtl/pulser.sv,
+    ./rtl/pulser_wrapper.sv,
+  ]
