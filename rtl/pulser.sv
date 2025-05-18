@@ -56,8 +56,7 @@ module pulser #(
   parameter obi_pkg::obi_cfg_t ObiCfg               = obi_pkg::ObiDefaultConfig,
   parameter type               obi_req_t            = logic,
   parameter type               obi_rsp_t            = logic,
-  parameter int                N_PULSER_INST        = 4,
-  parameter int                PULSER_SEL_ADDR_WIDTH = 2
+  parameter int                N_PULSER_INST        = 4
 ) (
   input  logic clk_i,
   input  logic rst_ni,
@@ -67,6 +66,10 @@ module pulser #(
 
   output logic [N_PULSER_INST-1:0] pulse_o
 );
+  //-----------------------------------------------------------------------------------------------
+  // Derived parameters
+  //-----------------------------------------------------------------------------------------------
+  localparam int PULSER_SEL_ADDR_WIDTH = $clog2(N_PULSER_INST);
 
   //-----------------------------------------------------------------------------------------------
   // Internal OBI handshake registers for tracking request context
