@@ -72,7 +72,7 @@ module pulser #(
     .IW        ( ObiCfg.IdWidth ),
     .req_t     ( reg_req_t ),
     .rsp_t     ( reg_rsp_t )
-  ) i_adv_timer_translate (
+  ) i_periph_to_reg (
     .clk_i     ( clk_i ),
     .rst_ni    ( rst_ni ),
 
@@ -85,7 +85,7 @@ module pulser #(
 
     .gnt_o     ( obi_rsp_o.gnt ),
     .r_rdata_o ( obi_rsp_o.r.rdata ),
-    .r_opc_o   ( obi_rsp_o.r.err ),
+    .r_opc_o   (  ),  // ( obi_rsp_o.r.err ),
     .r_id_o    ( obi_rsp_o.r.rid ),
     .r_valid_o ( obi_rsp_o.rvalid ),
 
