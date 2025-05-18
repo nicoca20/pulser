@@ -16,7 +16,7 @@ package pulser_reg_pkg;
   typedef struct packed {
     struct packed {
       logic [15:0] q;
-    } switch;
+    } switchval;
     struct packed {
       logic [15:0] q;
     } endval;
@@ -25,7 +25,7 @@ package pulser_reg_pkg;
   typedef struct packed {
     struct packed {
       logic [15:0] q;
-    } switch;
+    } switchval;
     struct packed {
       logic [15:0] q;
     } endval;

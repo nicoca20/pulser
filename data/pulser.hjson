@@ -30,7 +30,7 @@
       hwaccess: "hro",
       fields: [
         { bits: "15:0",
-        name: "SWITCH",
+        name: "SWITCHVAL",
         desc: "Number of cycles until switch (set duty cycle)"
         },
         { bits: "31:16",
@@ -46,7 +46,7 @@
       hwaccess: "hro",
       fields: [
         { bits: "15:0",
-        name: "SWITCH",
+        name: "SWITCHVAL",
         desc: "Number of cycles until switch (set duty cycle)"
         },
         { bits: "31:16",

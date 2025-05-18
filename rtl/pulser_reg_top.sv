@@ -68,15 +68,15 @@ module pulser_reg_top #(
   // Define SW related signals
   // Format: <reg>_<field>_{wd|we|qs}
   //        or <reg>_{wd|we|qs} if field == 1 or 0
-  logic [15:0] f1_cfg_switch_qs;
-  logic [15:0] f1_cfg_switch_wd;
-  logic f1_cfg_switch_we;
+  logic [15:0] f1_cfg_switchval_qs;
+  logic [15:0] f1_cfg_switchval_wd;
+  logic f1_cfg_switchval_we;
   logic [15:0] f1_cfg_endval_qs;
   logic [15:0] f1_cfg_endval_wd;
   logic f1_cfg_endval_we;
-  logic [15:0] f2_cfg_switch_qs;
-  logic [15:0] f2_cfg_switch_wd;
-  logic f2_cfg_switch_we;
+  logic [15:0] f2_cfg_switchval_qs;
+  logic [15:0] f2_cfg_switchval_wd;
+  logic f2_cfg_switchval_we;
   logic [15:0] f2_cfg_endval_qs;
   logic [15:0] f2_cfg_endval_wd;
   logic f2_cfg_endval_we;
@@ -101,18 +101,18 @@ module pulser_reg_top #(
   // Register instances
   // R[f1_cfg]: V(False)
 
-  //   F[switch]: 15:0
+  //   F[switchval]: 15:0
   prim_subreg #(
     .DW      (16),
     .SWACCESS("RW"),
     .RESVAL  (16'h0)
-  ) u_f1_cfg_switch (
+  ) u_f1_cfg_switchval (
     .clk_i   (clk_i    ),
     .rst_ni  (rst_ni  ),
 
     // from register interface
-    .we     (f1_cfg_switch_we),
-    .wd     (f1_cfg_switch_wd),
+    .we     (f1_cfg_switchval_we),
+    .wd     (f1_cfg_switchval_wd),
 
     // from internal hardware
     .de     (1'b0),
@@ -120,10 +120,10 @@ module pulser_reg_top #(
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.f1_cfg.switch.q ),
+    .q      (reg2hw.f1_cfg.switchval.q ),
 
     // to register interface (read)
-    .qs     (f1_cfg_switch_qs)
+    .qs     (f1_cfg_switchval_qs)
   );
 
 
@@ -155,18 +155,18 @@ module pulser_reg_top #(
 
   // R[f2_cfg]: V(False)
 
-  //   F[switch]: 15:0
+  //   F[switchval]: 15:0
   prim_subreg #(
     .DW      (16),
     .SWACCESS("RW"),
     .RESVAL  (16'h0)
-  ) u_f2_cfg_switch (
+  ) u_f2_cfg_switchval (
     .clk_i   (clk_i    ),
     .rst_ni  (rst_ni  ),
 
     // from register interface
-    .we     (f2_cfg_switch_we),
-    .wd     (f2_cfg_switch_wd),
+    .we     (f2_cfg_switchval_we),
+    .wd     (f2_cfg_switchval_wd),
 
     // from internal hardware
     .de     (1'b0),
@@ -174,10 +174,10 @@ module pulser_reg_top #(
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.f2_cfg.switch.q ),
+    .q      (reg2hw.f2_cfg.switchval.q ),
 
     // to register interface (read)
-    .qs     (f2_cfg_switch_qs)
+    .qs     (f2_cfg_switchval_qs)
   );
 
 
@@ -417,14 +417,14 @@ module pulser_reg_top #(
                (addr_hit[4] & (|(PULSER_PERMIT[4] & ~reg_be)))));
   end
 
-  assign f1_cfg_switch_we = addr_hit[0] & reg_we & !reg_error;
-  assign f1_cfg_switch_wd = reg_wdata[15:0];
+  assign f1_cfg_switchval_we = addr_hit[0] & reg_we & !reg_error;
+  assign f1_cfg_switchval_wd = reg_wdata[15:0];
 
   assign f1_cfg_endval_we = addr_hit[0] & reg_we & !reg_error;
   assign f1_cfg_endval_wd = reg_wdata[31:16];
 
-  assign f2_cfg_switch_we = addr_hit[1] & reg_we & !reg_error;
-  assign f2_cfg_switch_wd = reg_wdata[15:0];
+  assign f2_cfg_switchval_we = addr_hit[1] & reg_we & !reg_error;
+  assign f2_cfg_switchval_wd = reg_wdata[15:0];
 
   assign f2_cfg_endval_we = addr_hit[1] & reg_we & !reg_error;
   assign f2_cfg_endval_wd = reg_wdata[31:16];
@@ -449,12 +449,12 @@ module pulser_reg_top #(
     reg_rdata_next = '0;
     unique case (1'b1)
       addr_hit[0]: begin
-        reg_rdata_next[15:0] = f1_cfg_switch_qs;
+        reg_rdata_next[15:0] = f1_cfg_switchval_qs;
         reg_rdata_next[31:16] = f1_cfg_endval_qs;
       end
 
       addr_hit[1]: begin
-        reg_rdata_next[15:0] = f2_cfg_switch_qs;
+        reg_rdata_next[15:0] = f2_cfg_switchval_qs;
         reg_rdata_next[31:16] = f2_cfg_endval_qs;
       end
 
