@@ -3,37 +3,20 @@
 // SPDX-License-Identifier: Apache-2.0
 {
   name: "pulser",
-  human_name: "Pulser",
-  one_line_desc: "Configurable multi-phase multi Pulser pulse generator",
-  one_paragraph_desc: '''
-    The Pulser peripheral generates sequences of digital pulses based on configurable timing and waveform parameters.
-    Each instance includes three programmable waveform phases: F1, F2, and STOP. Pulses are generated using programmable
-    counters for pulse count, duration, and duty cycle. The STOP waveform is always the inverse of the last waveform.
-    For example, if F2 was high for 4 cycles and stops after 10, Stop will be low for 4 cycles, go to high until it reaches 10.
-  '''
-  // Unique comportable IP identifier defined under KNOWN_CIP_IDS in the regtool.
-  cip_id: "1",
-  revisions: [
-  {
-    version:            "1.0.0",
-    life_stage:         "L2",
-    design_stage:       "D3",
-    verification_stage: "V3",
-    commit_id:          "4166794b902cc72b4cfdfacca0869ffc56e6b42a",
-    notes:              ""
-  }
-  ]
-
-  clocking: [
-    {
-      clock: "clk_i",
-      reset: "rst_ni"
-    }
-  ],
+  clock_primary: "clk_i",
+  reset_primary: "rst_ni"
+  // one_line_desc: "Configurable multi-phase multi Pulser pulse generator",
+  // one_paragraph_desc: '''
+  //   The Pulser peripheral generates sequences of digital pulses based on configurable timing and waveform parameters.
+  //   Each instance includes three programmable waveform phases: F1, F2, and STOP. Pulses are generated using programmable
+  //   counters for pulse count, duration, and duty cycle. The STOP waveform is always the inverse of the last waveform.
+  //   For example, if F2 was high for 4 cycles and stops after 10, Stop will be low for 4 cycles, go to high until it reaches 10.
+  // '''
+  // // Unique comportable IP identifier defined under KNOWN_CIP_IDS in the regtool.
 
   bus_interfaces: [
     {
-      protocol: "tlul",
+      protocol: "reg_iface",
       direction: "device"
     }
   ],
@@ -51,7 +34,7 @@
         desc: "Number of cycles until switch (set duty cycle)"
         },
         { bits: "31:16",
-        name: "STOP",
+        name: "ENDVAL",
         desc: "Number of cycles until pulse done (set frequency)"
         }
       ]
@@ -67,7 +50,7 @@
         desc: "Number of cycles until switch (set duty cycle)"
         },
         { bits: "31:16",
-        name: "STOP",
+        name: "ENDVAL",
         desc: "Number of cycles until pulse done (set frequency)"
         }
       ]

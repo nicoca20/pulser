@@ -1,4 +1,4 @@
-// Copyright lowRISC contributors (OpenTitan project).
+// Copyright lowRISC contributors.
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -9,9 +9,6 @@ package pulser_reg_pkg;
   // Address widths within the block
   parameter int BlockAw = 5;
 
-  // Number of registers for every interface
-  parameter int NumRegs = 5;
-
   ////////////////////////////
   // Typedefs for registers //
   ////////////////////////////
@@ -19,49 +16,49 @@ package pulser_reg_pkg;
   typedef struct packed {
     struct packed {
       logic [15:0] q;
-    } stop;
+    } switch;
     struct packed {
       logic [15:0] q;
-    } switch;
+    } endval;
   } pulser_reg2hw_f1_cfg_reg_t;
 
   typedef struct packed {
     struct packed {
       logic [15:0] q;
-    } stop;
+    } switch;
     struct packed {
       logic [15:0] q;
-    } switch;
+    } endval;
   } pulser_reg2hw_f2_cfg_reg_t;
 
   typedef struct packed {
     struct packed {
       logic [7:0]  q;
-    } count_stop;
+    } f1;
     struct packed {
       logic [7:0]  q;
     } f2;
     struct packed {
       logic [7:0]  q;
-    } f1;
+    } count_stop;
   } pulser_reg2hw_count_cfg_reg_t;
 
   typedef struct packed {
     struct packed {
-      logic [2:0]  q;
-    } state;
-    struct packed {
       logic        q;
     } ready;
+    struct packed {
+      logic [2:0]  q;
+    } state;
   } pulser_reg2hw_status_reg_t;
 
   typedef struct packed {
     struct packed {
       logic        q;
-    } idle_out;
+    } invert_out;
     struct packed {
       logic        q;
-    } invert_out;
+    } idle_out;
   } pulser_reg2hw_out_ctrl_reg_t;
 
   typedef struct packed {
@@ -115,3 +112,4 @@ package pulser_reg_pkg;
   };
 
 endpackage
+
