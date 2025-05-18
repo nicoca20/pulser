@@ -95,8 +95,7 @@ module pulser #(
 
   pulser_reg_top #(
     .reg_req_t  ( reg_req_t ),
-    .reg_rsp_t  ( reg_rsp_t ),
-    .AW         ( ObiCfg.AddrWidth )
+    .reg_rsp_t  ( reg_rsp_t )
   ) i_pulser_reg_top (
     .clk_i      ( clk_i ),
     .rst_ni     ( rst_ni ),
