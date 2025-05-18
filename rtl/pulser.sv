@@ -62,8 +62,8 @@ module pulser #(
   reg_req_t reg_req;
   reg_rsp_t reg_rsp;
 
-  pulser_reg2hw_t pulser_reg2hw;
-  pulser_hw2reg_t pulser_hw2reg;
+  pulser_reg_pkg::pulser_reg2hw_t reg2hw;
+  pulser_reg_pkg::pulser_hw2reg_t hw2reg;
 
   periph_to_reg #(
     .AW        ( ObiCfg.AddrWidth ),
@@ -87,7 +87,7 @@ module pulser #(
     .r_rdata_o ( obi_rsp_o.r.rdata ),
     .r_opc_o   ( obi_rsp_o.r.err ),
     .r_id_o    ( obi_rsp_o.r.rid ),
-    .r_valid_o ( obi_rsp_o.r.rvalid ),
+    .r_valid_o ( obi_rsp_o.rvalid ),
 
     .reg_req_o ( reg_req ),
     .reg_rsp_i ( reg_rsp )
@@ -96,15 +96,15 @@ module pulser #(
   pulser_reg_top #(
     .reg_req_t  ( reg_req_t ),
     .reg_rsp_t  ( reg_rsp_t ),
-    .AW         (  )
+    .AW         ( ObiCfg.AddrWidth )
   ) i_pulser_reg_top (
     .clk_i      ( clk_i ),
     .rst_ni     ( rst_ni ),
     .reg_req_i  ( reg_req ),
-    .reg_rsp_o  ( reg_resp ),
+    .reg_rsp_o  ( reg_rsp ),
     // To HW
-    .reg2hw     ( pulser_reg2hw ),
-    .hw2reg     ( pulser_hw2reg ),
+    .reg2hw     ( reg2hw ),
+    .hw2reg     ( hw2reg ),
 
     // Config: If 1, explicit error return for unmapped register access
     .devmode_i  ( 1'b1 )
@@ -119,15 +119,15 @@ module pulser #(
     .rst_ni         ( rst_ni ),
     .start_i        ( start_pulse ),
     .stop_i         ( stop_pulse ),
-    .f1_cnt_i       ( pulser_reg2hw.count_cfg.f1.q ),
-    .f2_cnt_i       ( pulser_reg2hw.count_cfg.f2.q ),
-    .stop_cnt_i     ( pulser_reg2hw.count_cfg.count_stop.q ),
-    .f1_end_i       ( pulser_reg2hw.f1_cfg.endval.q ),
-    .f1_switch_i    ( pulser_reg2hw.f1_cfg.switch.q ),
-    .f2_end_i       ( pulser_reg2hw.f2_cfg.endval.q ),
-    .f2_switch_i    ( pulser_reg2hw.f2_cfg.switch.q ),
-    .invert_out_i   ( pulser_reg2hw.out_ctrl.invert_out.q ),
-    .idle_out_i     ( pulser_reg2hw.out_ctrl.idle_out.q ),
+    .f1_cnt_i       ( reg2hw.count_cfg.f1.q ),
+    .f2_cnt_i       ( reg2hw.count_cfg.f2.q ),
+    .stop_cnt_i     ( reg2hw.count_cfg.count_stop.q ),
+    .f1_end_i       ( reg2hw.f1_cfg.endval.q ),
+    .f1_switch_i    ( reg2hw.f1_cfg.switch.q ),
+    .f2_end_i       ( reg2hw.f2_cfg.endval.q ),
+    .f2_switch_i    ( reg2hw.f2_cfg.switch.q ),
+    .invert_out_i   ( reg2hw.out_ctrl.invert_out.q ),
+    .idle_out_i     ( reg2hw.out_ctrl.idle_out.q ),
     .pulse_o        ( pulse_o ),
     .state_o        ( state )
   );
