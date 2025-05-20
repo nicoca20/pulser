@@ -106,6 +106,24 @@
         desc: "Control output during idle: 1 to set to 1, 0 to set to 0."
         }
       ]
+    },
+    {
+      name: "CTRL",
+      desc: "Start and Stop the pulser. No registers generated, commands handled in pulser.",
+      swaccess: "wo",
+      hwaccess: "hro",
+      hwext: "true",
+      hwqe: "true",
+      fields: [
+        { bits: "0",
+        name: "START",
+        desc: "Set one to start the pulser."
+        },
+        { bits: "1",
+        name: "STOP",
+        desc: "Set one to stop the pulser."
+        }
+      ]
     }
   ]
 }

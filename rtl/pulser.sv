@@ -113,6 +113,9 @@ module pulser #(
   // Pulser instantiations
   //-----------------------------------------------------------------------------------------------
 
+  assign start_pulse  = reg2hw.ctrl.start.qe & reg2hw.ctrl.start.q;
+  assign stop_pulse   = reg2hw.ctrl.stop.qe & reg2hw.ctrl.stop.q;
+
   pulser_core i_pulser_core (
     .clk_i          ( clk_i ),
     .rst_ni         ( rst_ni ),

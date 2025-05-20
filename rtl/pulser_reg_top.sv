@@ -97,6 +97,10 @@ module pulser_reg_top #(
   logic out_ctrl_idle_out_qs;
   logic out_ctrl_idle_out_wd;
   logic out_ctrl_idle_out_we;
+  logic ctrl_start_wd;
+  logic ctrl_start_we;
+  logic ctrl_stop_wd;
+  logic ctrl_stop_we;
 
   // Register instances
   // R[f1_cfg]: V(False)
@@ -393,9 +397,41 @@ module pulser_reg_top #(
   );
 
 
+  // R[ctrl]: V(True)
+
+  //   F[start]: 0:0
+  prim_subreg_ext #(
+    .DW    (1)
+  ) u_ctrl_start (
+    .re     (1'b0),
+    .we     (ctrl_start_we),
+    .wd     (ctrl_start_wd),
+    .d      ('0),
+    .qre    (),
+    .qe     (reg2hw.ctrl.start.qe),
+    .q      (reg2hw.ctrl.start.q ),
+    .qs     ()
+  );
 
 
-  logic [4:0] addr_hit;
+  //   F[stop]: 1:1
+  prim_subreg_ext #(
+    .DW    (1)
+  ) u_ctrl_stop (
+    .re     (1'b0),
+    .we     (ctrl_stop_we),
+    .wd     (ctrl_stop_wd),
+    .d      ('0),
+    .qre    (),
+    .qe     (reg2hw.ctrl.stop.qe),
+    .q      (reg2hw.ctrl.stop.q ),
+    .qs     ()
+  );
+
+
+
+
+  logic [5:0] addr_hit;
   always_comb begin
     addr_hit = '0;
     addr_hit[0] = (reg_addr == PULSER_F1_CFG_OFFSET);
@@ -403,6 +439,7 @@ module pulser_reg_top #(
     addr_hit[2] = (reg_addr == PULSER_COUNT_CFG_OFFSET);
     addr_hit[3] = (reg_addr == PULSER_STATUS_OFFSET);
     addr_hit[4] = (reg_addr == PULSER_OUT_CTRL_OFFSET);
+    addr_hit[5] = (reg_addr == PULSER_CTRL_OFFSET);
   end
 
   assign addrmiss = (reg_re || reg_we) ? ~|addr_hit : 1'b0 ;
@@ -414,7 +451,8 @@ module pulser_reg_top #(
                (addr_hit[1] & (|(PULSER_PERMIT[1] & ~reg_be))) |
                (addr_hit[2] & (|(PULSER_PERMIT[2] & ~reg_be))) |
                (addr_hit[3] & (|(PULSER_PERMIT[3] & ~reg_be))) |
-               (addr_hit[4] & (|(PULSER_PERMIT[4] & ~reg_be)))));
+               (addr_hit[4] & (|(PULSER_PERMIT[4] & ~reg_be))) |
+               (addr_hit[5] & (|(PULSER_PERMIT[5] & ~reg_be)))));
   end
 
   assign f1_cfg_switchval_we = addr_hit[0] & reg_we & !reg_error;
@@ -444,6 +482,12 @@ module pulser_reg_top #(
   assign out_ctrl_idle_out_we = addr_hit[4] & reg_we & !reg_error;
   assign out_ctrl_idle_out_wd = reg_wdata[1];
 
+  assign ctrl_start_we = addr_hit[5] & reg_we & !reg_error;
+  assign ctrl_start_wd = reg_wdata[0];
+
+  assign ctrl_stop_we = addr_hit[5] & reg_we & !reg_error;
+  assign ctrl_stop_wd = reg_wdata[1];
+
   // Read data return
   always_comb begin
     reg_rdata_next = '0;
@@ -472,6 +516,11 @@ module pulser_reg_top #(
       addr_hit[4]: begin
         reg_rdata_next[0] = out_ctrl_invert_out_qs;
         reg_rdata_next[1] = out_ctrl_idle_out_qs;
+      end
+
+      addr_hit[5]: begin
+        reg_rdata_next[0] = '0;
+        reg_rdata_next[1] = '0;
       end
 
       default: begin

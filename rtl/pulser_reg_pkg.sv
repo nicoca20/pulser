@@ -54,6 +54,17 @@ package pulser_reg_pkg;
 
   typedef struct packed {
     struct packed {
+      logic        q;
+      logic        qe;
+    } start;
+    struct packed {
+      logic        q;
+      logic        qe;
+    } stop;
+  } pulser_reg2hw_ctrl_reg_t;
+
+  typedef struct packed {
+    struct packed {
       logic        d;
       logic        de;
     } ready;
@@ -65,10 +76,11 @@ package pulser_reg_pkg;
 
   // Register -> HW type
   typedef struct packed {
-    pulser_reg2hw_f1_cfg_reg_t f1_cfg; // [89:58]
-    pulser_reg2hw_f2_cfg_reg_t f2_cfg; // [57:26]
-    pulser_reg2hw_count_cfg_reg_t count_cfg; // [25:2]
-    pulser_reg2hw_out_ctrl_reg_t out_ctrl; // [1:0]
+    pulser_reg2hw_f1_cfg_reg_t f1_cfg; // [93:62]
+    pulser_reg2hw_f2_cfg_reg_t f2_cfg; // [61:30]
+    pulser_reg2hw_count_cfg_reg_t count_cfg; // [29:6]
+    pulser_reg2hw_out_ctrl_reg_t out_ctrl; // [5:4]
+    pulser_reg2hw_ctrl_reg_t ctrl; // [3:0]
   } pulser_reg2hw_t;
 
   // HW -> register type
@@ -82,6 +94,10 @@ package pulser_reg_pkg;
   parameter logic [BlockAw-1:0] PULSER_COUNT_CFG_OFFSET = 5'h 8;
   parameter logic [BlockAw-1:0] PULSER_STATUS_OFFSET = 5'h c;
   parameter logic [BlockAw-1:0] PULSER_OUT_CTRL_OFFSET = 5'h 10;
+  parameter logic [BlockAw-1:0] PULSER_CTRL_OFFSET = 5'h 14;
+
+  // Reset values for hwext registers and their fields
+  parameter logic [1:0] PULSER_CTRL_RESVAL = 2'h 0;
 
   // Register index
   typedef enum int {
@@ -89,16 +105,18 @@ package pulser_reg_pkg;
     PULSER_F2_CFG,
     PULSER_COUNT_CFG,
     PULSER_STATUS,
-    PULSER_OUT_CTRL
+    PULSER_OUT_CTRL,
+    PULSER_CTRL
   } pulser_id_e;
 
   // Register width information to check illegal writes
-  parameter logic [3:0] PULSER_PERMIT [5] = '{
+  parameter logic [3:0] PULSER_PERMIT [6] = '{
     4'b 1111, // index[0] PULSER_F1_CFG
     4'b 1111, // index[1] PULSER_F2_CFG
     4'b 0111, // index[2] PULSER_COUNT_CFG
     4'b 0001, // index[3] PULSER_STATUS
-    4'b 0001  // index[4] PULSER_OUT_CTRL
+    4'b 0001, // index[4] PULSER_OUT_CTRL
+    4'b 0001  // index[5] PULSER_CTRL
   };
 
 endpackage
