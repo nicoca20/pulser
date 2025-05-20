@@ -116,22 +116,24 @@ module pulser #(
   assign start_pulse  = reg2hw.ctrl.start.qe & reg2hw.ctrl.start.q;
   assign stop_pulse   = reg2hw.ctrl.stop.qe & reg2hw.ctrl.stop.q;
 
-  pulser_core i_pulser_core (
-    .clk_i          ( clk_i ),
-    .rst_ni         ( rst_ni ),
-    .start_i        ( start_pulse ),
-    .stop_i         ( stop_pulse ),
-    .f1_cnt_i       ( reg2hw.count_cfg.f1.q ),
-    .f2_cnt_i       ( reg2hw.count_cfg.f2.q ),
-    .stop_cnt_i     ( reg2hw.count_cfg.count_stop.q ),
-    .f1_end_i       ( reg2hw.f1_cfg.endval.q ),
-    .f1_switch_i    ( reg2hw.f1_cfg.switchval.q ),
-    .f2_end_i       ( reg2hw.f2_cfg.endval.q ),
-    .f2_switch_i    ( reg2hw.f2_cfg.switchval.q ),
-    .invert_out_i   ( reg2hw.out_ctrl.invert_out.q ),
-    .idle_out_i     ( reg2hw.out_ctrl.idle_out.q ),
-    .pulse_o        ( pulse_o ),
-    .state_o        ( state )
-  );
+  for (genvar ii = 0; ii < N_PULSER_INST; ii++) begin : gen_pulsers
+    pulser_core i_pulser_core (
+      .clk_i          ( clk_i ),
+      .rst_ni         ( rst_ni ),
+      .start_i        ( start_pulse ),
+      .stop_i         ( stop_pulse ),
+      .f1_cnt_i       ( reg2hw.cfg_cnt.f1.q ),
+      .f2_cnt_i       ( reg2hw.cfg_cnt.f2.q ),
+      .stop_cnt_i     ( reg2hw.cfg_cnt.count_stop.q ),
+      .f1_end_i       ( reg2hw.cfg_f1[ii].endval.q ),
+      .f1_switch_i    ( reg2hw.cfg_f1[ii].switchval.q ),
+      .f2_end_i       ( reg2hw.cfg_f2[ii].endval.q ),
+      .f2_switch_i    ( reg2hw.cfg_f2[ii].switchval.q ),
+      .invert_out_i   ( reg2hw.ctrl_out[ii].invert_out.q ),
+      .idle_out_i     ( reg2hw.ctrl_out[ii].idle_out.q ),
+      .pulse_o        (  ),
+      .state_o        ( state )
+    );
+  end
 
 endmodule

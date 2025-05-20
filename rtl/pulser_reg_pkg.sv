@@ -6,8 +6,11 @@
 
 package pulser_reg_pkg;
 
+  // Param list
+  parameter int NumPulsers = 4;
+
   // Address widths within the block
-  parameter int BlockAw = 5;
+  parameter int BlockAw = 6;
 
   ////////////////////////////
   // Typedefs for registers //
@@ -20,7 +23,7 @@ package pulser_reg_pkg;
     struct packed {
       logic [15:0] q;
     } endval;
-  } pulser_reg2hw_f1_cfg_reg_t;
+  } pulser_reg2hw_cfg_f1_mreg_t;
 
   typedef struct packed {
     struct packed {
@@ -29,7 +32,7 @@ package pulser_reg_pkg;
     struct packed {
       logic [15:0] q;
     } endval;
-  } pulser_reg2hw_f2_cfg_reg_t;
+  } pulser_reg2hw_cfg_f2_mreg_t;
 
   typedef struct packed {
     struct packed {
@@ -41,7 +44,7 @@ package pulser_reg_pkg;
     struct packed {
       logic [7:0]  q;
     } count_stop;
-  } pulser_reg2hw_count_cfg_reg_t;
+  } pulser_reg2hw_cfg_cnt_reg_t;
 
   typedef struct packed {
     struct packed {
@@ -50,7 +53,7 @@ package pulser_reg_pkg;
     struct packed {
       logic        q;
     } idle_out;
-  } pulser_reg2hw_out_ctrl_reg_t;
+  } pulser_reg2hw_ctrl_out_mreg_t;
 
   typedef struct packed {
     struct packed {
@@ -76,10 +79,10 @@ package pulser_reg_pkg;
 
   // Register -> HW type
   typedef struct packed {
-    pulser_reg2hw_f1_cfg_reg_t f1_cfg; // [93:62]
-    pulser_reg2hw_f2_cfg_reg_t f2_cfg; // [61:30]
-    pulser_reg2hw_count_cfg_reg_t count_cfg; // [29:6]
-    pulser_reg2hw_out_ctrl_reg_t out_ctrl; // [5:4]
+    pulser_reg2hw_cfg_f1_mreg_t [3:0] cfg_f1; // [291:164]
+    pulser_reg2hw_cfg_f2_mreg_t [3:0] cfg_f2; // [163:36]
+    pulser_reg2hw_cfg_cnt_reg_t cfg_cnt; // [35:12]
+    pulser_reg2hw_ctrl_out_mreg_t [3:0] ctrl_out; // [11:4]
     pulser_reg2hw_ctrl_reg_t ctrl; // [3:0]
   } pulser_reg2hw_t;
 
@@ -89,34 +92,61 @@ package pulser_reg_pkg;
   } pulser_hw2reg_t;
 
   // Register offsets
-  parameter logic [BlockAw-1:0] PULSER_F1_CFG_OFFSET = 5'h 0;
-  parameter logic [BlockAw-1:0] PULSER_F2_CFG_OFFSET = 5'h 4;
-  parameter logic [BlockAw-1:0] PULSER_COUNT_CFG_OFFSET = 5'h 8;
-  parameter logic [BlockAw-1:0] PULSER_STATUS_OFFSET = 5'h c;
-  parameter logic [BlockAw-1:0] PULSER_OUT_CTRL_OFFSET = 5'h 10;
-  parameter logic [BlockAw-1:0] PULSER_CTRL_OFFSET = 5'h 14;
+  parameter logic [BlockAw-1:0] PULSER_CFG_F1_0_OFFSET = 6'h 0;
+  parameter logic [BlockAw-1:0] PULSER_CFG_F1_1_OFFSET = 6'h 4;
+  parameter logic [BlockAw-1:0] PULSER_CFG_F1_2_OFFSET = 6'h 8;
+  parameter logic [BlockAw-1:0] PULSER_CFG_F1_3_OFFSET = 6'h c;
+  parameter logic [BlockAw-1:0] PULSER_CFG_F2_0_OFFSET = 6'h 10;
+  parameter logic [BlockAw-1:0] PULSER_CFG_F2_1_OFFSET = 6'h 14;
+  parameter logic [BlockAw-1:0] PULSER_CFG_F2_2_OFFSET = 6'h 18;
+  parameter logic [BlockAw-1:0] PULSER_CFG_F2_3_OFFSET = 6'h 1c;
+  parameter logic [BlockAw-1:0] PULSER_CFG_CNT_OFFSET = 6'h 20;
+  parameter logic [BlockAw-1:0] PULSER_STATUS_OFFSET = 6'h 24;
+  parameter logic [BlockAw-1:0] PULSER_CTRL_OUT_0_OFFSET = 6'h 28;
+  parameter logic [BlockAw-1:0] PULSER_CTRL_OUT_1_OFFSET = 6'h 2c;
+  parameter logic [BlockAw-1:0] PULSER_CTRL_OUT_2_OFFSET = 6'h 30;
+  parameter logic [BlockAw-1:0] PULSER_CTRL_OUT_3_OFFSET = 6'h 34;
+  parameter logic [BlockAw-1:0] PULSER_CTRL_OFFSET = 6'h 38;
 
   // Reset values for hwext registers and their fields
   parameter logic [1:0] PULSER_CTRL_RESVAL = 2'h 0;
 
   // Register index
   typedef enum int {
-    PULSER_F1_CFG,
-    PULSER_F2_CFG,
-    PULSER_COUNT_CFG,
+    PULSER_CFG_F1_0,
+    PULSER_CFG_F1_1,
+    PULSER_CFG_F1_2,
+    PULSER_CFG_F1_3,
+    PULSER_CFG_F2_0,
+    PULSER_CFG_F2_1,
+    PULSER_CFG_F2_2,
+    PULSER_CFG_F2_3,
+    PULSER_CFG_CNT,
     PULSER_STATUS,
-    PULSER_OUT_CTRL,
+    PULSER_CTRL_OUT_0,
+    PULSER_CTRL_OUT_1,
+    PULSER_CTRL_OUT_2,
+    PULSER_CTRL_OUT_3,
     PULSER_CTRL
   } pulser_id_e;
 
   // Register width information to check illegal writes
-  parameter logic [3:0] PULSER_PERMIT [6] = '{
-    4'b 1111, // index[0] PULSER_F1_CFG
-    4'b 1111, // index[1] PULSER_F2_CFG
-    4'b 0111, // index[2] PULSER_COUNT_CFG
-    4'b 0001, // index[3] PULSER_STATUS
-    4'b 0001, // index[4] PULSER_OUT_CTRL
-    4'b 0001  // index[5] PULSER_CTRL
+  parameter logic [3:0] PULSER_PERMIT [15] = '{
+    4'b 1111, // index[ 0] PULSER_CFG_F1_0
+    4'b 1111, // index[ 1] PULSER_CFG_F1_1
+    4'b 1111, // index[ 2] PULSER_CFG_F1_2
+    4'b 1111, // index[ 3] PULSER_CFG_F1_3
+    4'b 1111, // index[ 4] PULSER_CFG_F2_0
+    4'b 1111, // index[ 5] PULSER_CFG_F2_1
+    4'b 1111, // index[ 6] PULSER_CFG_F2_2
+    4'b 1111, // index[ 7] PULSER_CFG_F2_3
+    4'b 0111, // index[ 8] PULSER_CFG_CNT
+    4'b 0001, // index[ 9] PULSER_STATUS
+    4'b 0001, // index[10] PULSER_CTRL_OUT_0
+    4'b 0001, // index[11] PULSER_CTRL_OUT_1
+    4'b 0001, // index[12] PULSER_CTRL_OUT_2
+    4'b 0001, // index[13] PULSER_CTRL_OUT_3
+    4'b 0001  // index[14] PULSER_CTRL
   };
 
 endpackage

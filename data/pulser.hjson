@@ -22,41 +22,58 @@
   ],
 
   regwidth: "32",
+  param_list: [
+    { name: "NumPulsers",
+      desc: "Number of Pulsers",
+      type: "int",
+      default: "4",
+      local: "true"
+    }
+  ],
+
   registers: [
-    {
-      name: "F1_CFG",
-      desc: "Phase F1 configuration: end and switch points",
-      swaccess: "rw",
-      hwaccess: "hro",
-      fields: [
-        { bits: "15:0",
-        name: "SWITCHVAL",
-        desc: "Number of cycles until switch (set duty cycle)"
-        },
-        { bits: "31:16",
-        name: "ENDVAL",
-        desc: "Number of cycles until pulse done (set frequency)"
-        }
-      ]
+    { multireg:
+      {
+        name: "CFG_F1",
+        desc: "Phase F1 configuration: end and switch points",
+        count: "NumPulsers"
+        cname: "F1_CFG",
+        swaccess: "rw",
+        hwaccess: "hro",
+        fields: [
+          { bits: "15:0",
+            name: "SWITCHVAL",
+            desc: "Number of cycles until switch (set duty cycle)"
+          },
+          { bits: "31:16",
+            name: "ENDVAL",
+            desc: "Number of cycles until pulse done (set frequency)"
+          }
+        ]
+      }
     },
-    {
-      name: "F2_CFG",
-      desc: "Phase F2 configuration: end and switch points",
-      swaccess: "rw",
-      hwaccess: "hro",
-      fields: [
-        { bits: "15:0",
-        name: "SWITCHVAL",
-        desc: "Number of cycles until switch (set duty cycle)"
-        },
-        { bits: "31:16",
-        name: "ENDVAL",
-        desc: "Number of cycles until pulse done (set frequency)"
-        }
-      ]
+    { multireg:
+      {
+        name: "CFG_F2",
+        desc: "Phase F2 configuration: end and switch points",
+        count: "NumPulsers"
+        cname: "CFG_F2",
+        swaccess: "rw",
+        hwaccess: "hro",
+        fields: [
+          { bits: "15:0",
+          name: "SWITCHVAL",
+          desc: "Number of cycles until switch (set duty cycle)"
+          },
+          { bits: "31:16",
+          name: "ENDVAL",
+          desc: "Number of cycles until pulse done (set frequency)"
+          }
+        ]
+      }
     },
-    {
-      name: "COUNT_CFG",
+    { 
+      name: "CFG_CNT",
       desc: "Configure number of pulses for each phase",
       swaccess: "rw",
       hwaccess: "hro",
@@ -91,21 +108,25 @@
         }
       ]
     },
-    {
-      name: "OUT_CTRL",
-      desc: "Set idle state of pulser and if pulse phase should be inverted",
-      swaccess: "rw",
-      hwaccess: "hro",
-      fields: [
-        { bits: "0",
-        name: "INVERT_OUT",
-        desc: "Set 1, if pulser output should be inverted during pulsing phase."
-        },
-        { bits: "1",
-        name: "IDLE_OUT",
-        desc: "Control output during idle: 1 to set to 1, 0 to set to 0."
-        }
-      ]
+    { multireg:
+      {
+        name: "CTRL_OUT",
+        desc: "Set idle state of pulser and if pulse phase should be inverted",
+        count: "NumPulsers"
+        cname: "CTRL_OUT",
+        swaccess: "rw",
+        hwaccess: "hro",
+        fields: [
+          { bits: "0",
+          name: "INVERT_OUT",
+          desc: "Set 1, if pulser output should be inverted during pulsing phase."
+          },
+          { bits: "1",
+          name: "IDLE_OUT",
+          desc: "Control output during idle: 1 to set to 1, 0 to set to 0."
+          }
+        ]
+      }
     },
     {
       name: "CTRL",
