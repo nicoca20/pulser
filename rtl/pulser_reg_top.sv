@@ -307,7 +307,7 @@ module pulser_reg_top #(
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.status.ready.q ),
+    .q      (),
 
     // to register interface (read)
     .qs     (status_ready_qs)
@@ -332,7 +332,7 @@ module pulser_reg_top #(
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.status.state.q ),
+    .q      (),
 
     // to register interface (read)
     .qs     (status_state_qs)

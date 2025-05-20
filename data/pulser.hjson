@@ -79,7 +79,7 @@
       name: "STATUS",
       desc: "Read state of pulser",
       swaccess: "ro",
-      hwaccess: "hrw",
+      hwaccess: "hwo",
       fields: [
         { bits: "0",
         name: "READY",

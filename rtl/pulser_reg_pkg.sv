@@ -46,15 +46,6 @@ package pulser_reg_pkg;
   typedef struct packed {
     struct packed {
       logic        q;
-    } ready;
-    struct packed {
-      logic [2:0]  q;
-    } state;
-  } pulser_reg2hw_status_reg_t;
-
-  typedef struct packed {
-    struct packed {
-      logic        q;
     } invert_out;
     struct packed {
       logic        q;
@@ -74,10 +65,9 @@ package pulser_reg_pkg;
 
   // Register -> HW type
   typedef struct packed {
-    pulser_reg2hw_f1_cfg_reg_t f1_cfg; // [93:62]
-    pulser_reg2hw_f2_cfg_reg_t f2_cfg; // [61:30]
-    pulser_reg2hw_count_cfg_reg_t count_cfg; // [29:6]
-    pulser_reg2hw_status_reg_t status; // [5:2]
+    pulser_reg2hw_f1_cfg_reg_t f1_cfg; // [89:58]
+    pulser_reg2hw_f2_cfg_reg_t f2_cfg; // [57:26]
+    pulser_reg2hw_count_cfg_reg_t count_cfg; // [25:2]
     pulser_reg2hw_out_ctrl_reg_t out_ctrl; // [1:0]
   } pulser_reg2hw_t;
 
