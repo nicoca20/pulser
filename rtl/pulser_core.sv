@@ -105,7 +105,7 @@ module pulser_core (
   counter #(
     .WIDTH($bits(clk_count)),
     .STICKY_OVERFLOW(1'b0)
-  ) i_counter (
+  ) i_counter_common_cells (
     .clk_i      (clk_i),
     .rst_ni     (rst_ni),
     .clear_i    (1'b0),
@@ -264,7 +264,6 @@ module pulser_core (
           pulse_o = ~(clk_count < current_switch);
         end
       end
-      // Done and Idle can also be removed and handled with default case.
       DONE: begin
         pulse_o = idle_out_i;
       end
