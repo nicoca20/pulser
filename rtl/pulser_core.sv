@@ -197,7 +197,9 @@ module pulser_core (
     pulse_cnt_d = pulse_cnt_q;
     pulse_counter_done = '0;
 
-    if (pulse_done) begin
+    if (stop_i) begin
+      pulse_cnt_d = 0;
+    end else if (pulse_done) begin
       if (pulse_cnt_q == (current_count_target - 1)) begin
         pulse_counter_done = 1'b1;
         pulse_cnt_d = '0;
