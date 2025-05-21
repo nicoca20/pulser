@@ -40,24 +40,25 @@
 // Top-level wrapper module for multiple pulser instances
 //-----------------------------------------------------------------------------------------------
 module pulser #(
-  parameter obi_pkg::obi_cfg_t ObiCfg               = obi_pkg::ObiDefaultConfig,
-  parameter type               obi_req_t            = logic,
-  parameter type               obi_rsp_t            = logic,
-  parameter type               reg_req_t            = logic,
-  parameter type               reg_rsp_t            = logic,
-  parameter int                N_PULSER_INST        = 4
+  parameter obi_pkg::obi_cfg_t      ObiCfg         = obi_pkg::ObiDefaultConfig,
+  parameter type                    obi_req_t      = logic,
+  parameter type                    obi_rsp_t      = logic,
+  parameter type                    reg_req_t      = logic,
+  parameter type                    reg_rsp_t      = logic,
+  parameter int                     N_PULSER_INST  = 4
 ) (
-  input  logic clk_i,
-  input  logic rst_ni,
+  input  logic                      clk_i,
+  input  logic                      rst_ni,
 
-  input  obi_req_t obi_req_i,
-  output obi_rsp_t obi_rsp_o,
+  input  obi_req_t                  obi_req_i,
+  output obi_rsp_t                  obi_rsp_o,
 
-  output logic pulse_o
+  output logic [N_PULSER_INST-1:0]  pulse_o
 );
 
-  logic [2:0]  state;
-  logic        start_pulse, stop_pulse;
+
+  logic [N_PULSER_INST-1:0][2:0]  state;
+  logic [N_PULSER_INST - 1:0]     start_pulse, stop_pulse;
 
   reg_req_t reg_req;
   reg_rsp_t reg_rsp;
@@ -66,44 +67,44 @@ module pulser #(
   pulser_reg_pkg::pulser_hw2reg_t hw2reg;
 
   periph_to_reg #(
-    .AW        ( ObiCfg.AddrWidth ),
-    .DW        ( ObiCfg.DataWidth ),
-    .BW        ( 8 ),
-    .IW        ( ObiCfg.IdWidth ),
-    .req_t     ( reg_req_t ),
-    .rsp_t     ( reg_rsp_t )
+    .AW        ( ObiCfg.AddrWidth   ),
+    .DW        ( ObiCfg.DataWidth   ),
+    .BW        ( 8                  ),
+    .IW        ( ObiCfg.IdWidth     ),
+    .req_t     ( reg_req_t          ),
+    .rsp_t     ( reg_rsp_t          )
   ) i_periph_to_reg (
-    .clk_i     ( clk_i ),
-    .rst_ni    ( rst_ni ),
+    .clk_i     ( clk_i              ),
+    .rst_ni    ( rst_ni             ),
 
-    .req_i     ( obi_req_i.req ),
-    .add_i     ( obi_req_i.a.addr ),
-    .wen_i     ( ~obi_req_i.a.we ),
-    .wdata_i   ( obi_req_i.a.wdata ),
-    .be_i      ( obi_req_i.a.be ),
-    .id_i      ( obi_req_i.a.aid ),
+    .req_i     ( obi_req_i.req      ),
+    .add_i     ( obi_req_i.a.addr   ),
+    .wen_i     ( ~obi_req_i.a.we    ),
+    .wdata_i   ( obi_req_i.a.wdata  ),
+    .be_i      ( obi_req_i.a.be     ),
+    .id_i      ( obi_req_i.a.aid    ),
 
-    .gnt_o     ( obi_rsp_o.gnt ),
-    .r_rdata_o ( obi_rsp_o.r.rdata ),
-    .r_opc_o   (  ),  // ( obi_rsp_o.r.err ),
-    .r_id_o    ( obi_rsp_o.r.rid ),
-    .r_valid_o ( obi_rsp_o.rvalid ),
+    .gnt_o     ( obi_rsp_o.gnt      ),
+    .r_rdata_o ( obi_rsp_o.r.rdata  ),
+    .r_opc_o   (  ),
+    .r_id_o    ( obi_rsp_o.r.rid    ),
+    .r_valid_o ( obi_rsp_o.rvalid   ),
 
-    .reg_req_o ( reg_req ),
-    .reg_rsp_i ( reg_rsp )
+    .reg_req_o ( reg_req            ),
+    .reg_rsp_i ( reg_rsp            )
   );
 
   pulser_reg_top #(
     .reg_req_t  ( reg_req_t ),
     .reg_rsp_t  ( reg_rsp_t )
   ) i_pulser_reg_top (
-    .clk_i      ( clk_i ),
-    .rst_ni     ( rst_ni ),
-    .reg_req_i  ( reg_req ),
-    .reg_rsp_o  ( reg_rsp ),
+    .clk_i      ( clk_i     ),
+    .rst_ni     ( rst_ni    ),
+    .reg_req_i  ( reg_req   ),
+    .reg_rsp_o  ( reg_rsp   ),
     // To HW
-    .reg2hw     ( reg2hw ),
-    .hw2reg     ( hw2reg ),
+    .reg2hw     ( reg2hw    ),
+    .hw2reg     ( hw2reg    ),
 
     // Config: If 1, explicit error return for unmapped register access
     .devmode_i  ( 1'b1 )
@@ -113,26 +114,27 @@ module pulser #(
   // Pulser instantiations
   //-----------------------------------------------------------------------------------------------
 
-  assign start_pulse  = reg2hw.ctrl.start.qe & reg2hw.ctrl.start.q;
-  assign stop_pulse   = reg2hw.ctrl.stop.qe & reg2hw.ctrl.stop.q;
 
   for (genvar ii = 0; ii < N_PULSER_INST; ii++) begin : gen_pulsers
+    assign start_pulse[ii]  = reg2hw.ctrl[ii].start.qe & reg2hw.ctrl[ii].start.q;
+    assign stop_pulse[ii]   = reg2hw.ctrl[ii].stop.qe & reg2hw.ctrl[ii].stop.q;
+
     pulser_core i_pulser_core (
-      .clk_i          ( clk_i ),
-      .rst_ni         ( rst_ni ),
-      .start_i        ( start_pulse ),
-      .stop_i         ( stop_pulse ),
-      .f1_cnt_i       ( reg2hw.cfg_cnt.f1.q ),
-      .f2_cnt_i       ( reg2hw.cfg_cnt.f2.q ),
-      .stop_cnt_i     ( reg2hw.cfg_cnt.count_stop.q ),
-      .f1_end_i       ( reg2hw.cfg_f1[ii].endval.q ),
-      .f1_switch_i    ( reg2hw.cfg_f1[ii].switchval.q ),
-      .f2_end_i       ( reg2hw.cfg_f2[ii].endval.q ),
-      .f2_switch_i    ( reg2hw.cfg_f2[ii].switchval.q ),
-      .invert_out_i   ( reg2hw.ctrl_out[ii].invert_out.q ),
-      .idle_out_i     ( reg2hw.ctrl_out[ii].idle_out.q ),
-      .pulse_o        (  ),
-      .state_o        ( state )
+      .clk_i          ( clk_i                             ),
+      .rst_ni         ( rst_ni                            ),
+      .start_i        ( start_pulse[ii]                   ),
+      .stop_i         ( stop_pulse[ii]                    ),
+      .f1_cnt_i       ( reg2hw.cfg_cnt[ii].f1.q           ),
+      .f2_cnt_i       ( reg2hw.cfg_cnt[ii].f2.q           ),
+      .stop_cnt_i     ( reg2hw.cfg_cnt[ii].count_stop.q   ),
+      .f1_end_i       ( reg2hw.cfg_f1[ii].endval.q        ),
+      .f1_switch_i    ( reg2hw.cfg_f1[ii].switchval.q     ),
+      .f2_end_i       ( reg2hw.cfg_f2[ii].endval.q        ),
+      .f2_switch_i    ( reg2hw.cfg_f2[ii].switchval.q     ),
+      .invert_out_i   ( reg2hw.ctrl_out[ii].invert_out.q  ),
+      .idle_out_i     ( reg2hw.ctrl_out[ii].idle_out.q    ),
+      .pulse_o        ( pulse_o[ii]                       ),
+      .state_o        ( state[ii]                         )
     );
   end
 
