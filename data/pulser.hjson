@@ -37,7 +37,7 @@
         name: "CFG_F1",
         desc: "Phase F1 configuration: end and switch points",
         count: "NumPulsers"
-        cname: "F1_CFG",
+        cname: "CFG_F1",
         swaccess: "rw",
         hwaccess: "hro",
         fields: [
