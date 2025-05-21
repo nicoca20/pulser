@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------------------------
 // File        : pulser.sv
 // Author      : Nico Canzani <ncanzani@student.ethz.ch>
-// Description : Top-Level Wrapper for Multiple Pulse Generators
+// Description : Top-Level Wrapper for multiple Pulse Generators
 //
 // This module integrates multiple instances of the `pulser_core` module and exposes a unified
 // register interface over the OBI (Open Bus Interface) protocol.
@@ -56,15 +56,44 @@ module pulser #(
   output logic [N_PULSER_INST-1:0]  pulse_o
 );
 
+  //-----------------------------------------------------------------------------------------------
+  // Derived parameters
+  //-----------------------------------------------------------------------------------------------
+  localparam int PULSER_SEL_ADDR_WIDTH = (N_PULSER_INST < 2) ? 1 : $clog2(N_PULSER_INST + 1); // +1 to select general config register
+  localparam int AW_CORE_REG = pulser_core_reg_pkg::BlockAw;
+  
+  localparam int PULSER_SEL_LOW   = AW_CORE_REG;
+  localparam int PULSER_SEL_HIGH  = PULSER_SEL_LOW + PULSER_SEL_ADDR_WIDTH - 1 + 1; //  +1 to select general config register
 
-  logic [N_PULSER_INST-1:0][2:0]  state;
-  logic [N_PULSER_INST - 1:0]     start_pulse, stop_pulse;
+  logic [PULSER_SEL_ADDR_WIDTH-1:0] pulser_sel;
+  logic [N_PULSER_INST - 1:0]       valid_pulser_req;
+  logic                             valid_general_req;
+
+
+  logic [N_PULSER_INST - 1:0][2:0]  state;
+  logic [N_PULSER_INST - 1:0]       start_pulse, stop_pulse;
 
   reg_req_t reg_req;
   reg_rsp_t reg_rsp;
+  reg_req_t [N_PULSER_INST - 1:0] reg_req_mux;
+  reg_rsp_t [N_PULSER_INST - 1:0] reg_rsp_mux;
 
-  pulser_reg_pkg::pulser_reg2hw_t reg2hw;
-  pulser_reg_pkg::pulser_hw2reg_t hw2reg;
+  reg_req_t reg_req_general;
+  reg_rsp_t reg_rsp_general;
+
+  pulser_core_reg_pkg::pulser_core_reg2hw_t [N_PULSER_INST - 1:0] reg2hw;
+  pulser_core_reg_pkg::pulser_core_hw2reg_t [N_PULSER_INST - 1:0] hw2reg;
+  
+  pulser_general_reg_pkg::pulser_general_reg2hw_t reg2hw_general;
+
+
+  assign pulser_sel = reg_req.addr[PULSER_SEL_HIGH : PULSER_SEL_LOW];
+  assign valid_pulser_req = (1 << pulser_sel) && reg_req.valid;
+  assign valid_general_req = (pulser_sel == N_PULSER_INST) && reg_req.valid;
+
+  assign reg_rsp =  (valid_general_req) ? reg_rsp_general :
+                    (pulser_sel < N_PULSER_INST && reg_req.valid) ? reg_rsp_mux[pulser_sel] :
+                    '0;
 
   periph_to_reg #(
     .AW        ( ObiCfg.AddrWidth   ),
@@ -94,17 +123,47 @@ module pulser #(
     .reg_rsp_i ( reg_rsp            )
   );
 
-  pulser_reg_top #(
-    .reg_req_t  ( reg_req_t ),
-    .reg_rsp_t  ( reg_rsp_t )
-  ) i_pulser_reg_top (
-    .clk_i      ( clk_i     ),
-    .rst_ni     ( rst_ni    ),
-    .reg_req_i  ( reg_req   ),
-    .reg_rsp_o  ( reg_rsp   ),
+  for (genvar ii = 0; ii < N_PULSER_INST; ii++) begin : gen_pulser_regs
+
+    assign reg_req_mux[ii].addr   = reg_req.addr;
+    assign reg_req_mux[ii].write  = reg_req.write;
+    assign reg_req_mux[ii].wdata  = reg_req.wdata;
+    assign reg_req_mux[ii].wstrb  = reg_req.wstrb;
+    assign reg_req_mux[ii].valid  = valid_pulser_req[ii];
+
+    pulser_core_reg_top #(
+      .reg_req_t  ( reg_req_t       ),
+      .reg_rsp_t  ( reg_rsp_t       )
+    ) i_pulser_core_reg_top (
+      .clk_i      ( clk_i           ),
+      .rst_ni     ( rst_ni          ),
+      .reg_req_i  ( reg_req_mux[ii] ),
+      .reg_rsp_o  ( reg_rsp_mux[ii] ),
+      // To HW
+      .reg2hw     ( reg2hw[ii]      ),
+      .hw2reg     ( hw2reg[ii]      ),
+
+      // Config: If 1, explicit error return for unmapped register access
+      .devmode_i  ( 1'b1 )
+    );
+  end
+
+
+  assign reg_req_general.addr   = reg_req.addr;
+  assign reg_req_general.write  = reg_req.write;
+  assign reg_req_general.wdata  = reg_req.wdata;
+  assign reg_req_general.wstrb  = reg_req.wstrb;
+  assign reg_req_general.valid  = valid_general_req;
+  pulser_general_reg_top #(
+    .reg_req_t  ( reg_req_t   ),
+    .reg_rsp_t  ( reg_rsp_t   )
+  ) i_pulser_general_reg_top (
+    .clk_i      ( clk_i       ),
+    .rst_ni     ( rst_ni      ),
+    .reg_req_i  ( reg_req_general ),
+    .reg_rsp_o  ( reg_rsp_general     ),
     // To HW
-    .reg2hw     ( reg2hw    ),
-    .hw2reg     ( hw2reg    ),
+    .reg2hw     ( reg2hw_general  ),
 
     // Config: If 1, explicit error return for unmapped register access
     .devmode_i  ( 1'b1 )
@@ -116,23 +175,25 @@ module pulser #(
 
 
   for (genvar ii = 0; ii < N_PULSER_INST; ii++) begin : gen_pulsers
-    assign start_pulse[ii]  = reg2hw.ctrl[ii].start.qe & reg2hw.ctrl[ii].start.q;
-    assign stop_pulse[ii]   = reg2hw.ctrl[ii].stop.qe & reg2hw.ctrl[ii].stop.q;
+    // assign start_pulse[ii]  = reg2hw_general.ctrl.start.qe[ii] & reg2hw_general.ctrl.start.q[ii];
+    // assign stop_pulse[ii]   = reg2hw_general.ctrl.stop.qe[ii] & reg2hw_general.ctrl.stop.q[ii];
+    assign start_pulse[ii]  = reg2hw_general.ctrl.start.qe & reg2hw_general.ctrl.start.q;
+    assign stop_pulse[ii]   = reg2hw_general.ctrl.stop.qe & reg2hw_general.ctrl.stop.q;
 
     pulser_core i_pulser_core (
       .clk_i          ( clk_i                             ),
       .rst_ni         ( rst_ni                            ),
       .start_i        ( start_pulse[ii]                   ),
       .stop_i         ( stop_pulse[ii]                    ),
-      .f1_cnt_i       ( reg2hw.cfg_cnt[ii].f1.q           ),
-      .f2_cnt_i       ( reg2hw.cfg_cnt[ii].f2.q           ),
-      .stop_cnt_i     ( reg2hw.cfg_cnt[ii].count_stop.q   ),
-      .f1_end_i       ( reg2hw.cfg_f1[ii].endval.q        ),
-      .f1_switch_i    ( reg2hw.cfg_f1[ii].switchval.q     ),
-      .f2_end_i       ( reg2hw.cfg_f2[ii].endval.q        ),
-      .f2_switch_i    ( reg2hw.cfg_f2[ii].switchval.q     ),
-      .invert_out_i   ( reg2hw.ctrl_out[ii].invert_out.q  ),
-      .idle_out_i     ( reg2hw.ctrl_out[ii].idle_out.q    ),
+      .f1_cnt_i       ( reg2hw[ii].cfg_cnt.f1.q           ),
+      .f2_cnt_i       ( reg2hw[ii].cfg_cnt.f2.q           ),
+      .stop_cnt_i     ( reg2hw[ii].cfg_cnt.cnt_stop.q     ),
+      .f1_end_i       ( reg2hw[ii].cfg_f1.endval.q        ),
+      .f1_switch_i    ( reg2hw[ii].cfg_f1.switchval.q     ),
+      .f2_end_i       ( reg2hw[ii].cfg_f2.endval.q        ),
+      .f2_switch_i    ( reg2hw[ii].cfg_f2.switchval.q     ),
+      .invert_out_i   ( reg2hw[ii].ctrl_out.invert_out.q  ),
+      .idle_out_i     ( reg2hw[ii].ctrl_out.idle_out.q    ),
       .pulse_o        ( pulse_o[ii]                       ),
       .state_o        ( state[ii]                         )
     );
