@@ -59,10 +59,10 @@ module pulser #(
   //-----------------------------------------------------------------------------------------------
   // Derived parameters
   //-----------------------------------------------------------------------------------------------
-  localparam int PULSER_SEL_ADDR_WIDTH = (N_PULSER_INST < 2) ? 1 : $clog2(N_PULSER_INST + 1); // +1 to select general config register
+  localparam int BLOCK_SEL_ADDR_WIDTH = (N_PULSER_INST < 2) ? 1 : $clog2(N_PULSER_INST + 1); // +1 to select general config register
   localparam int AW_CORE_REG = pulser_core_reg_pkg::BlockAw;
   
-  logic [PULSER_SEL_ADDR_WIDTH-1:0] pulser_sel;
+  logic [BLOCK_SEL_ADDR_WIDTH-1:0]  block_sel;
   logic [N_PULSER_INST - 1:0]       valid_pulser_req;
   logic                             valid_general_req;
 
@@ -82,23 +82,23 @@ module pulser #(
   
   pulser_general_reg_pkg::pulser_general_reg2hw_t reg2hw_general;
 
-  assign pulser_sel = reg_req.addr[AW_CORE_REG + PULSER_SEL_ADDR_WIDTH - 1 : AW_CORE_REG];
+  assign block_sel = reg_req.addr[AW_CORE_REG + BLOCK_SEL_ADDR_WIDTH - 1 : AW_CORE_REG];
 
   always_comb begin
     valid_pulser_req = '0;
     valid_general_req = 1'b0;
 
     if (reg_req.valid == 1'b1) begin
-      if (pulser_sel == N_PULSER_INST) begin
+      if (block_sel == N_PULSER_INST) begin
         valid_general_req = 1'b1;
       end else begin
-        valid_pulser_req = (1 << pulser_sel);
+        valid_pulser_req = (1 << block_sel);
       end
     end
   end
 
   assign reg_rsp =  (valid_general_req) ? reg_rsp_general :
-                    (pulser_sel < N_PULSER_INST && reg_req.valid) ? reg_rsp_mux[pulser_sel] :
+                    (block_sel < N_PULSER_INST && reg_req.valid) ? reg_rsp_mux[block_sel] :
                     '0;
 
   periph_to_reg #(
@@ -129,7 +129,11 @@ module pulser #(
     .reg_rsp_i ( reg_rsp            )
   );
 
-  for (genvar ii = 0; ii < N_PULSER_INST; ii++) begin : gen_pulser_regs
+  //-----------------------------------------------------------------------------------------------
+  // Pulser and their register instantiations
+  //-----------------------------------------------------------------------------------------------
+
+  for (genvar ii = 0; ii < N_PULSER_INST; ii++) begin : gen_pulsers
 
     assign reg_req_mux[ii].addr   = reg_req.addr;
     assign reg_req_mux[ii].write  = reg_req.write;
@@ -152,39 +156,9 @@ module pulser #(
       // Config: If 1, explicit error return for unmapped register access
       .devmode_i  ( 1'b1 )
     );
-  end
 
-
-  assign reg_req_general.addr   = reg_req.addr;
-  assign reg_req_general.write  = reg_req.write;
-  assign reg_req_general.wdata  = reg_req.wdata;
-  assign reg_req_general.wstrb  = reg_req.wstrb;
-  assign reg_req_general.valid  = valid_general_req;
-  pulser_general_reg_top #(
-    .reg_req_t  ( reg_req_t   ),
-    .reg_rsp_t  ( reg_rsp_t   )
-  ) i_pulser_general_reg_top (
-    .clk_i      ( clk_i       ),
-    .rst_ni     ( rst_ni      ),
-    .reg_req_i  ( reg_req_general ),
-    .reg_rsp_o  ( reg_rsp_general     ),
-    // To HW
-    .reg2hw     ( reg2hw_general  ),
-
-    // Config: If 1, explicit error return for unmapped register access
-    .devmode_i  ( 1'b1 )
-  );
-
-  //-----------------------------------------------------------------------------------------------
-  // Pulser instantiations
-  //-----------------------------------------------------------------------------------------------
-
-
-  for (genvar ii = 0; ii < N_PULSER_INST; ii++) begin : gen_pulsers
-    // assign start_pulse[ii]  = reg2hw_general.ctrl.start.qe[ii] & reg2hw_general.ctrl.start.q[ii];
-    // assign stop_pulse[ii]   = reg2hw_general.ctrl.stop.qe[ii] & reg2hw_general.ctrl.stop.q[ii];
-    assign start_pulse[ii]  = reg2hw_general.ctrl.start.qe & reg2hw_general.ctrl.start.q[ii];
-    assign stop_pulse[ii]   = reg2hw_general.ctrl.stop.qe & reg2hw_general.ctrl.stop.q[ii];
+    assign start_pulse[ii]        = reg2hw_general.ctrl.start.qe & reg2hw_general.ctrl.start.q[ii];
+    assign stop_pulse[ii]         = reg2hw_general.ctrl.stop.qe & reg2hw_general.ctrl.stop.q[ii];
 
     pulser_core i_pulser_core (
       .clk_i          ( clk_i                             ),
@@ -204,5 +178,27 @@ module pulser #(
       .state_o        ( state[ii]                         )
     );
   end
+
+
+  assign reg_req_general.addr   = reg_req.addr;
+  assign reg_req_general.write  = reg_req.write;
+  assign reg_req_general.wdata  = reg_req.wdata;
+  assign reg_req_general.wstrb  = reg_req.wstrb;
+  assign reg_req_general.valid  = valid_general_req;
+
+  pulser_general_reg_top #(
+    .reg_req_t  ( reg_req_t   ),
+    .reg_rsp_t  ( reg_rsp_t   )
+  ) i_pulser_general_reg_top (
+    .clk_i      ( clk_i       ),
+    .rst_ni     ( rst_ni      ),
+    .reg_req_i  ( reg_req_general ),
+    .reg_rsp_o  ( reg_rsp_general     ),
+    // To HW
+    .reg2hw     ( reg2hw_general  ),
+
+    // Config: If 1, explicit error return for unmapped register access
+    .devmode_i  ( 1'b1 )
+  );
 
 endmodule
