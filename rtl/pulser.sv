@@ -62,13 +62,9 @@ module pulser #(
   localparam int PULSER_SEL_ADDR_WIDTH = (N_PULSER_INST < 2) ? 1 : $clog2(N_PULSER_INST + 1); // +1 to select general config register
   localparam int AW_CORE_REG = pulser_core_reg_pkg::BlockAw;
   
-  localparam int PULSER_SEL_LOW   = AW_CORE_REG;
-  localparam int PULSER_SEL_HIGH  = PULSER_SEL_LOW + PULSER_SEL_ADDR_WIDTH - 1 + 1; //  +1 to select general config register
-
   logic [PULSER_SEL_ADDR_WIDTH-1:0] pulser_sel;
   logic [N_PULSER_INST - 1:0]       valid_pulser_req;
   logic                             valid_general_req;
-
 
   logic [N_PULSER_INST - 1:0][2:0]  state;
   logic [N_PULSER_INST - 1:0]       start_pulse, stop_pulse;
@@ -86,10 +82,20 @@ module pulser #(
   
   pulser_general_reg_pkg::pulser_general_reg2hw_t reg2hw_general;
 
+  assign pulser_sel = reg_req.addr[AW_CORE_REG + PULSER_SEL_ADDR_WIDTH - 1 : AW_CORE_REG];
 
-  assign pulser_sel = reg_req.addr[PULSER_SEL_HIGH : PULSER_SEL_LOW];
-  assign valid_pulser_req = (1 << pulser_sel) && reg_req.valid;
-  assign valid_general_req = (pulser_sel == N_PULSER_INST) && reg_req.valid;
+  always_comb begin
+    valid_pulser_req = '0;
+    valid_general_req = 1'b0;
+
+    if (reg_req.valid == 1'b1) begin
+      if (pulser_sel == N_PULSER_INST) begin
+        valid_general_req = 1'b1;
+      end else begin
+        valid_pulser_req = (1 << pulser_sel);
+      end
+    end
+  end
 
   assign reg_rsp =  (valid_general_req) ? reg_rsp_general :
                     (pulser_sel < N_PULSER_INST && reg_req.valid) ? reg_rsp_mux[pulser_sel] :
@@ -177,8 +183,8 @@ module pulser #(
   for (genvar ii = 0; ii < N_PULSER_INST; ii++) begin : gen_pulsers
     // assign start_pulse[ii]  = reg2hw_general.ctrl.start.qe[ii] & reg2hw_general.ctrl.start.q[ii];
     // assign stop_pulse[ii]   = reg2hw_general.ctrl.stop.qe[ii] & reg2hw_general.ctrl.stop.q[ii];
-    assign start_pulse[ii]  = reg2hw_general.ctrl.start.qe & reg2hw_general.ctrl.start.q;
-    assign stop_pulse[ii]   = reg2hw_general.ctrl.stop.qe & reg2hw_general.ctrl.stop.q;
+    assign start_pulse[ii]  = reg2hw_general.ctrl.start.qe & reg2hw_general.ctrl.start.q[ii];
+    assign stop_pulse[ii]   = reg2hw_general.ctrl.stop.qe & reg2hw_general.ctrl.stop.q[ii];
 
     pulser_core i_pulser_core (
       .clk_i          ( clk_i                             ),
