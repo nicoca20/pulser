@@ -34,18 +34,14 @@
   registers: [
     { multireg:
       {
-        name: "CFG_F1",
-        desc: "Phase F1 configuration: end and switch points",
+        name: "CFG_F1_END",
+        desc: "Phase F1 configuration: end point",
         count: "NumPulsers"
-        cname: "CFG_F1",
+        cname: "CFG_F1_END",
         swaccess: "rw",
         hwaccess: "hro",
         fields: [
           { bits: "15:0",
-            name: "SWITCHVAL",
-            desc: "Number of cycles until switch (set duty cycle)"
-          },
-          { bits: "31:16",
             name: "ENDVAL",
             desc: "Number of cycles until pulse done (set frequency)"
           }
@@ -54,62 +50,126 @@
     },
     { multireg:
       {
-        name: "CFG_F2",
-        desc: "Phase F2 configuration: end and switch points",
+        name: "CFG_F1_SWITCH",
+        desc: "Phase F1 configuration: switch points",
         count: "NumPulsers"
-        cname: "CFG_F2",
+        cname: "CFG_F1_SWITCH",
         swaccess: "rw",
         hwaccess: "hro",
         fields: [
           { bits: "15:0",
-          name: "SWITCHVAL",
-          desc: "Number of cycles until switch (set duty cycle)"
-          },
-          { bits: "31:16",
-          name: "ENDVAL",
-          desc: "Number of cycles until pulse done (set frequency)"
+            name: "SWITCHVAL",
+            desc: "Number of cycles until switch (set duty cycle)"
           }
         ]
       }
     },
     { multireg:
       {
-        name: "CFG_CNT",
-        desc: "Configure number of pulses for each phase",
+        name: "CFG_F2_END",
+        desc: "Phase F2 configuration: end point",
         count: "NumPulsers"
-        cname: "CFG_CNT",
+        cname: "CFG_F2_END",
+        swaccess: "rw",
+        hwaccess: "hro",
+        fields: [
+          { bits: "15:0",
+            name: "ENDVAL",
+            desc: "Number of cycles until pulse done (set frequency)"
+          }
+        ]
+      }
+    },
+    { multireg:
+      {
+        name: "CFG_F2_SWITCH",
+        desc: "Phase F2 configuration: switch points",
+        count: "NumPulsers"
+        cname: "CFG_F2_SWITCH",
+        swaccess: "rw",
+        hwaccess: "hro",
+        fields: [
+          { bits: "15:0",
+            name: "SWITCHVAL",
+            desc: "Number of cycles until switch (set duty cycle)"
+          }
+        ]
+      }
+    },
+    { multireg:
+      {
+        name: "CFG_CNT_F1",
+        desc: "Configure number of pulses for phase F1",
+        count: "NumPulsers"
+        cname: "CFG_CNT_F1",
         swaccess: "rw",
         hwaccess: "hro",
         fields: [
           { bits: "7:0",
           name: "F1",
           desc: "Number of f1 pulses"
-          },
-          { bits: "15:8",
-          name: "F2",
-          desc: "Number of f2 pulses"
-          },
-          { bits: "23:16",
-          name: "COUNT_STOP",
-          desc: "Number of stop pulses"
-          },
+          }
         ]
       }
     },
     { multireg:
       {
-        name: "STATUS",
+        name: "CFG_CNT_F2",
+        desc: "Configure number of pulses for phase F2",
+        count: "NumPulsers"
+        cname: "CFG_CNT_F2",
+        swaccess: "rw",
+        hwaccess: "hro",
+        fields: [
+          { bits: "7:0",
+          name: "F2",
+          desc: "Number of f2 pulses"
+          }
+        ]
+      }
+    },
+    { multireg:
+      {
+        name: "CFG_CNT_STOP",
+        desc: "Configure number of pulses for phase STOP",
+        count: "NumPulsers"
+        cname: "CFG_CNT_STOP",
+        swaccess: "rw",
+        hwaccess: "hro",
+        fields: [
+          { bits: "7:0",
+          name: "COUNT_STOP",
+          desc: "Number of stop pulses"
+          }
+        ]
+      }
+    },
+    { multireg:
+      {
+        name: "READY",
         desc: "Read state of pulser",
         count: "NumPulsers"
-        cname: "STATUS",
+        cname: "READY",
         swaccess: "ro",
         hwaccess: "hwo",
         fields: [
           { bits: "0",
           name: "READY",
           desc: "High, if pulser is ready to start next pulsing phase"
-          },
-          { bits: "3:1",
+          }
+        ]
+      }
+    },
+    { multireg:
+      {
+        name: "STATE",
+        desc: "Read state of pulser",
+        count: "NumPulsers"
+        cname: "STATE",
+        swaccess: "ro",
+        hwaccess: "hwo",
+        fields: [
+          { bits: "2:0",
           name: "STATE",
           desc: "Current state of the pulser: 0: Idle, 1: Running F1, 2: Running F2, 3: Running Stop pulse, 4: Done."
           }
@@ -118,17 +178,29 @@
     },
     { multireg:
       {
-        name: "CTRL_OUT",
-        desc: "Set idle state of pulser and if pulse phase should be inverted",
+        name: "CTRL_INV_OUT",
+        desc: "Set if pulse phase should be inverted",
         count: "NumPulsers"
-        cname: "CTRL_OUT",
+        cname: "CTRL_INV_OUT",
         swaccess: "rw",
         hwaccess: "hro",
         fields: [
           { bits: "0",
           name: "INVERT_OUT",
           desc: "Set 1, if pulser output should be inverted during pulsing phase."
-          },
+          }
+        ]
+      }
+    },
+    { multireg:
+      {
+        name: "CTRL_IDLE_OUT",
+        desc: "Set idle state of pulser",
+        count: "NumPulsers"
+        cname: "CTRL_IDLE_OUT",
+        swaccess: "rw",
+        hwaccess: "hro",
+        fields: [
           { bits: "1",
           name: "IDLE_OUT",
           desc: "Control output during idle: 1 to set to 1, 0 to set to 0."
@@ -138,10 +210,10 @@
     },
     { multireg:
       {
-        name: "CTRL",
-        desc: "Start and Stop the pulser. No registers generated, commands handled in pulser.",
+        name: "CTRL_START",
+        desc: "Start the pulser. No registers generated, commands handled in pulser.",
         count: "NumPulsers"
-        cname: "CTRL",
+        cname: "CTRL_START",
         swaccess: "wo",
         hwaccess: "hro",
         hwext: "true",
@@ -150,7 +222,21 @@
           { bits: "0",
           name: "START",
           desc: "Set one to start the pulser."
-          },
+          }
+        ]
+      }
+    },
+    { multireg:
+      {
+        name: "CTRL_STOP",
+        desc: "Stop the pulser. No registers generated, commands handled in pulser.",
+        count: "NumPulsers"
+        cname: "CTRL_STOP",
+        swaccess: "wo",
+        hwaccess: "hro",
+        hwext: "true",
+        hwqe: "true",
+        fields: [
           { bits: "1",
           name: "STOP",
           desc: "Set one to stop the pulser."

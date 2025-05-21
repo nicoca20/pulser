@@ -68,156 +68,156 @@ module pulser_reg_top #(
   // Define SW related signals
   // Format: <reg>_<field>_{wd|we|qs}
   //        or <reg>_{wd|we|qs} if field == 1 or 0
-  logic [15:0] cfg_f1_0_switchval_0_qs;
-  logic [15:0] cfg_f1_0_switchval_0_wd;
-  logic cfg_f1_0_switchval_0_we;
-  logic [15:0] cfg_f1_0_endval_0_qs;
-  logic [15:0] cfg_f1_0_endval_0_wd;
-  logic cfg_f1_0_endval_0_we;
-  logic [15:0] cfg_f1_1_switchval_1_qs;
-  logic [15:0] cfg_f1_1_switchval_1_wd;
-  logic cfg_f1_1_switchval_1_we;
-  logic [15:0] cfg_f1_1_endval_1_qs;
-  logic [15:0] cfg_f1_1_endval_1_wd;
-  logic cfg_f1_1_endval_1_we;
-  logic [15:0] cfg_f1_2_switchval_2_qs;
-  logic [15:0] cfg_f1_2_switchval_2_wd;
-  logic cfg_f1_2_switchval_2_we;
-  logic [15:0] cfg_f1_2_endval_2_qs;
-  logic [15:0] cfg_f1_2_endval_2_wd;
-  logic cfg_f1_2_endval_2_we;
-  logic [15:0] cfg_f1_3_switchval_3_qs;
-  logic [15:0] cfg_f1_3_switchval_3_wd;
-  logic cfg_f1_3_switchval_3_we;
-  logic [15:0] cfg_f1_3_endval_3_qs;
-  logic [15:0] cfg_f1_3_endval_3_wd;
-  logic cfg_f1_3_endval_3_we;
-  logic [15:0] cfg_f2_0_switchval_0_qs;
-  logic [15:0] cfg_f2_0_switchval_0_wd;
-  logic cfg_f2_0_switchval_0_we;
-  logic [15:0] cfg_f2_0_endval_0_qs;
-  logic [15:0] cfg_f2_0_endval_0_wd;
-  logic cfg_f2_0_endval_0_we;
-  logic [15:0] cfg_f2_1_switchval_1_qs;
-  logic [15:0] cfg_f2_1_switchval_1_wd;
-  logic cfg_f2_1_switchval_1_we;
-  logic [15:0] cfg_f2_1_endval_1_qs;
-  logic [15:0] cfg_f2_1_endval_1_wd;
-  logic cfg_f2_1_endval_1_we;
-  logic [15:0] cfg_f2_2_switchval_2_qs;
-  logic [15:0] cfg_f2_2_switchval_2_wd;
-  logic cfg_f2_2_switchval_2_we;
-  logic [15:0] cfg_f2_2_endval_2_qs;
-  logic [15:0] cfg_f2_2_endval_2_wd;
-  logic cfg_f2_2_endval_2_we;
-  logic [15:0] cfg_f2_3_switchval_3_qs;
-  logic [15:0] cfg_f2_3_switchval_3_wd;
-  logic cfg_f2_3_switchval_3_we;
-  logic [15:0] cfg_f2_3_endval_3_qs;
-  logic [15:0] cfg_f2_3_endval_3_wd;
-  logic cfg_f2_3_endval_3_we;
-  logic [7:0] cfg_cnt_0_f1_0_qs;
-  logic [7:0] cfg_cnt_0_f1_0_wd;
-  logic cfg_cnt_0_f1_0_we;
-  logic [7:0] cfg_cnt_0_f2_0_qs;
-  logic [7:0] cfg_cnt_0_f2_0_wd;
-  logic cfg_cnt_0_f2_0_we;
-  logic [7:0] cfg_cnt_0_count_stop_0_qs;
-  logic [7:0] cfg_cnt_0_count_stop_0_wd;
-  logic cfg_cnt_0_count_stop_0_we;
-  logic [7:0] cfg_cnt_1_f1_1_qs;
-  logic [7:0] cfg_cnt_1_f1_1_wd;
-  logic cfg_cnt_1_f1_1_we;
-  logic [7:0] cfg_cnt_1_f2_1_qs;
-  logic [7:0] cfg_cnt_1_f2_1_wd;
-  logic cfg_cnt_1_f2_1_we;
-  logic [7:0] cfg_cnt_1_count_stop_1_qs;
-  logic [7:0] cfg_cnt_1_count_stop_1_wd;
-  logic cfg_cnt_1_count_stop_1_we;
-  logic [7:0] cfg_cnt_2_f1_2_qs;
-  logic [7:0] cfg_cnt_2_f1_2_wd;
-  logic cfg_cnt_2_f1_2_we;
-  logic [7:0] cfg_cnt_2_f2_2_qs;
-  logic [7:0] cfg_cnt_2_f2_2_wd;
-  logic cfg_cnt_2_f2_2_we;
-  logic [7:0] cfg_cnt_2_count_stop_2_qs;
-  logic [7:0] cfg_cnt_2_count_stop_2_wd;
-  logic cfg_cnt_2_count_stop_2_we;
-  logic [7:0] cfg_cnt_3_f1_3_qs;
-  logic [7:0] cfg_cnt_3_f1_3_wd;
-  logic cfg_cnt_3_f1_3_we;
-  logic [7:0] cfg_cnt_3_f2_3_qs;
-  logic [7:0] cfg_cnt_3_f2_3_wd;
-  logic cfg_cnt_3_f2_3_we;
-  logic [7:0] cfg_cnt_3_count_stop_3_qs;
-  logic [7:0] cfg_cnt_3_count_stop_3_wd;
-  logic cfg_cnt_3_count_stop_3_we;
-  logic status_0_ready_0_qs;
-  logic [2:0] status_0_state_0_qs;
-  logic status_1_ready_1_qs;
-  logic [2:0] status_1_state_1_qs;
-  logic status_2_ready_2_qs;
-  logic [2:0] status_2_state_2_qs;
-  logic status_3_ready_3_qs;
-  logic [2:0] status_3_state_3_qs;
-  logic ctrl_out_0_invert_out_0_qs;
-  logic ctrl_out_0_invert_out_0_wd;
-  logic ctrl_out_0_invert_out_0_we;
-  logic ctrl_out_0_idle_out_0_qs;
-  logic ctrl_out_0_idle_out_0_wd;
-  logic ctrl_out_0_idle_out_0_we;
-  logic ctrl_out_1_invert_out_1_qs;
-  logic ctrl_out_1_invert_out_1_wd;
-  logic ctrl_out_1_invert_out_1_we;
-  logic ctrl_out_1_idle_out_1_qs;
-  logic ctrl_out_1_idle_out_1_wd;
-  logic ctrl_out_1_idle_out_1_we;
-  logic ctrl_out_2_invert_out_2_qs;
-  logic ctrl_out_2_invert_out_2_wd;
-  logic ctrl_out_2_invert_out_2_we;
-  logic ctrl_out_2_idle_out_2_qs;
-  logic ctrl_out_2_idle_out_2_wd;
-  logic ctrl_out_2_idle_out_2_we;
-  logic ctrl_out_3_invert_out_3_qs;
-  logic ctrl_out_3_invert_out_3_wd;
-  logic ctrl_out_3_invert_out_3_we;
-  logic ctrl_out_3_idle_out_3_qs;
-  logic ctrl_out_3_idle_out_3_wd;
-  logic ctrl_out_3_idle_out_3_we;
-  logic ctrl_0_start_0_wd;
-  logic ctrl_0_start_0_we;
-  logic ctrl_0_stop_0_wd;
-  logic ctrl_0_stop_0_we;
-  logic ctrl_1_start_1_wd;
-  logic ctrl_1_start_1_we;
-  logic ctrl_1_stop_1_wd;
-  logic ctrl_1_stop_1_we;
-  logic ctrl_2_start_2_wd;
-  logic ctrl_2_start_2_we;
-  logic ctrl_2_stop_2_wd;
-  logic ctrl_2_stop_2_we;
-  logic ctrl_3_start_3_wd;
-  logic ctrl_3_start_3_we;
-  logic ctrl_3_stop_3_wd;
-  logic ctrl_3_stop_3_we;
+  logic [15:0] cfg_f1_end_0_endval_0_qs;
+  logic [15:0] cfg_f1_end_0_endval_0_wd;
+  logic cfg_f1_end_0_endval_0_we;
+  logic [15:0] cfg_f1_end_0_endval_1_qs;
+  logic [15:0] cfg_f1_end_0_endval_1_wd;
+  logic cfg_f1_end_0_endval_1_we;
+  logic [15:0] cfg_f1_end_1_endval_2_qs;
+  logic [15:0] cfg_f1_end_1_endval_2_wd;
+  logic cfg_f1_end_1_endval_2_we;
+  logic [15:0] cfg_f1_end_1_endval_3_qs;
+  logic [15:0] cfg_f1_end_1_endval_3_wd;
+  logic cfg_f1_end_1_endval_3_we;
+  logic [15:0] cfg_f1_switch_0_switchval_0_qs;
+  logic [15:0] cfg_f1_switch_0_switchval_0_wd;
+  logic cfg_f1_switch_0_switchval_0_we;
+  logic [15:0] cfg_f1_switch_0_switchval_1_qs;
+  logic [15:0] cfg_f1_switch_0_switchval_1_wd;
+  logic cfg_f1_switch_0_switchval_1_we;
+  logic [15:0] cfg_f1_switch_1_switchval_2_qs;
+  logic [15:0] cfg_f1_switch_1_switchval_2_wd;
+  logic cfg_f1_switch_1_switchval_2_we;
+  logic [15:0] cfg_f1_switch_1_switchval_3_qs;
+  logic [15:0] cfg_f1_switch_1_switchval_3_wd;
+  logic cfg_f1_switch_1_switchval_3_we;
+  logic [15:0] cfg_f2_end_0_endval_0_qs;
+  logic [15:0] cfg_f2_end_0_endval_0_wd;
+  logic cfg_f2_end_0_endval_0_we;
+  logic [15:0] cfg_f2_end_0_endval_1_qs;
+  logic [15:0] cfg_f2_end_0_endval_1_wd;
+  logic cfg_f2_end_0_endval_1_we;
+  logic [15:0] cfg_f2_end_1_endval_2_qs;
+  logic [15:0] cfg_f2_end_1_endval_2_wd;
+  logic cfg_f2_end_1_endval_2_we;
+  logic [15:0] cfg_f2_end_1_endval_3_qs;
+  logic [15:0] cfg_f2_end_1_endval_3_wd;
+  logic cfg_f2_end_1_endval_3_we;
+  logic [15:0] cfg_f2_switch_0_switchval_0_qs;
+  logic [15:0] cfg_f2_switch_0_switchval_0_wd;
+  logic cfg_f2_switch_0_switchval_0_we;
+  logic [15:0] cfg_f2_switch_0_switchval_1_qs;
+  logic [15:0] cfg_f2_switch_0_switchval_1_wd;
+  logic cfg_f2_switch_0_switchval_1_we;
+  logic [15:0] cfg_f2_switch_1_switchval_2_qs;
+  logic [15:0] cfg_f2_switch_1_switchval_2_wd;
+  logic cfg_f2_switch_1_switchval_2_we;
+  logic [15:0] cfg_f2_switch_1_switchval_3_qs;
+  logic [15:0] cfg_f2_switch_1_switchval_3_wd;
+  logic cfg_f2_switch_1_switchval_3_we;
+  logic [7:0] cfg_cnt_f1_f1_0_qs;
+  logic [7:0] cfg_cnt_f1_f1_0_wd;
+  logic cfg_cnt_f1_f1_0_we;
+  logic [7:0] cfg_cnt_f1_f1_1_qs;
+  logic [7:0] cfg_cnt_f1_f1_1_wd;
+  logic cfg_cnt_f1_f1_1_we;
+  logic [7:0] cfg_cnt_f1_f1_2_qs;
+  logic [7:0] cfg_cnt_f1_f1_2_wd;
+  logic cfg_cnt_f1_f1_2_we;
+  logic [7:0] cfg_cnt_f1_f1_3_qs;
+  logic [7:0] cfg_cnt_f1_f1_3_wd;
+  logic cfg_cnt_f1_f1_3_we;
+  logic [7:0] cfg_cnt_f2_f2_0_qs;
+  logic [7:0] cfg_cnt_f2_f2_0_wd;
+  logic cfg_cnt_f2_f2_0_we;
+  logic [7:0] cfg_cnt_f2_f2_1_qs;
+  logic [7:0] cfg_cnt_f2_f2_1_wd;
+  logic cfg_cnt_f2_f2_1_we;
+  logic [7:0] cfg_cnt_f2_f2_2_qs;
+  logic [7:0] cfg_cnt_f2_f2_2_wd;
+  logic cfg_cnt_f2_f2_2_we;
+  logic [7:0] cfg_cnt_f2_f2_3_qs;
+  logic [7:0] cfg_cnt_f2_f2_3_wd;
+  logic cfg_cnt_f2_f2_3_we;
+  logic [7:0] cfg_cnt_stop_count_stop_0_qs;
+  logic [7:0] cfg_cnt_stop_count_stop_0_wd;
+  logic cfg_cnt_stop_count_stop_0_we;
+  logic [7:0] cfg_cnt_stop_count_stop_1_qs;
+  logic [7:0] cfg_cnt_stop_count_stop_1_wd;
+  logic cfg_cnt_stop_count_stop_1_we;
+  logic [7:0] cfg_cnt_stop_count_stop_2_qs;
+  logic [7:0] cfg_cnt_stop_count_stop_2_wd;
+  logic cfg_cnt_stop_count_stop_2_we;
+  logic [7:0] cfg_cnt_stop_count_stop_3_qs;
+  logic [7:0] cfg_cnt_stop_count_stop_3_wd;
+  logic cfg_cnt_stop_count_stop_3_we;
+  logic ready_ready_0_qs;
+  logic ready_ready_1_qs;
+  logic ready_ready_2_qs;
+  logic ready_ready_3_qs;
+  logic [2:0] state_state_0_qs;
+  logic [2:0] state_state_1_qs;
+  logic [2:0] state_state_2_qs;
+  logic [2:0] state_state_3_qs;
+  logic ctrl_inv_out_invert_out_0_qs;
+  logic ctrl_inv_out_invert_out_0_wd;
+  logic ctrl_inv_out_invert_out_0_we;
+  logic ctrl_inv_out_invert_out_1_qs;
+  logic ctrl_inv_out_invert_out_1_wd;
+  logic ctrl_inv_out_invert_out_1_we;
+  logic ctrl_inv_out_invert_out_2_qs;
+  logic ctrl_inv_out_invert_out_2_wd;
+  logic ctrl_inv_out_invert_out_2_we;
+  logic ctrl_inv_out_invert_out_3_qs;
+  logic ctrl_inv_out_invert_out_3_wd;
+  logic ctrl_inv_out_invert_out_3_we;
+  logic ctrl_idle_out_idle_out_0_qs;
+  logic ctrl_idle_out_idle_out_0_wd;
+  logic ctrl_idle_out_idle_out_0_we;
+  logic ctrl_idle_out_idle_out_1_qs;
+  logic ctrl_idle_out_idle_out_1_wd;
+  logic ctrl_idle_out_idle_out_1_we;
+  logic ctrl_idle_out_idle_out_2_qs;
+  logic ctrl_idle_out_idle_out_2_wd;
+  logic ctrl_idle_out_idle_out_2_we;
+  logic ctrl_idle_out_idle_out_3_qs;
+  logic ctrl_idle_out_idle_out_3_wd;
+  logic ctrl_idle_out_idle_out_3_we;
+  logic ctrl_start_start_0_wd;
+  logic ctrl_start_start_0_we;
+  logic ctrl_start_start_1_wd;
+  logic ctrl_start_start_1_we;
+  logic ctrl_start_start_2_wd;
+  logic ctrl_start_start_2_we;
+  logic ctrl_start_start_3_wd;
+  logic ctrl_start_start_3_we;
+  logic ctrl_stop_stop_0_wd;
+  logic ctrl_stop_stop_0_we;
+  logic ctrl_stop_stop_1_wd;
+  logic ctrl_stop_stop_1_we;
+  logic ctrl_stop_stop_2_wd;
+  logic ctrl_stop_stop_2_we;
+  logic ctrl_stop_stop_3_wd;
+  logic ctrl_stop_stop_3_we;
 
   // Register instances
 
-  // Subregister 0 of Multireg cfg_f1
-  // R[cfg_f1_0]: V(False)
+  // Subregister 0 of Multireg cfg_f1_end
+  // R[cfg_f1_end_0]: V(False)
 
-  // F[switchval_0]: 15:0
+  // F[endval_0]: 15:0
   prim_subreg #(
     .DW      (16),
     .SWACCESS("RW"),
     .RESVAL  (16'h0)
-  ) u_cfg_f1_0_switchval_0 (
+  ) u_cfg_f1_end_0_endval_0 (
     .clk_i   (clk_i    ),
     .rst_ni  (rst_ni  ),
 
     // from register interface
-    .we     (cfg_f1_0_switchval_0_we),
-    .wd     (cfg_f1_0_switchval_0_wd),
+    .we     (cfg_f1_end_0_endval_0_we),
+    .wd     (cfg_f1_end_0_endval_0_wd),
 
     // from internal hardware
     .de     (1'b0),
@@ -225,65 +225,10 @@ module pulser_reg_top #(
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.cfg_f1[0].switchval.q ),
+    .q      (reg2hw.cfg_f1_end[0].q ),
 
     // to register interface (read)
-    .qs     (cfg_f1_0_switchval_0_qs)
-  );
-
-
-  // F[endval_0]: 31:16
-  prim_subreg #(
-    .DW      (16),
-    .SWACCESS("RW"),
-    .RESVAL  (16'h0)
-  ) u_cfg_f1_0_endval_0 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
-
-    // from register interface
-    .we     (cfg_f1_0_endval_0_we),
-    .wd     (cfg_f1_0_endval_0_wd),
-
-    // from internal hardware
-    .de     (1'b0),
-    .d      ('0  ),
-
-    // to internal hardware
-    .qe     (),
-    .q      (reg2hw.cfg_f1[0].endval.q ),
-
-    // to register interface (read)
-    .qs     (cfg_f1_0_endval_0_qs)
-  );
-
-
-  // Subregister 1 of Multireg cfg_f1
-  // R[cfg_f1_1]: V(False)
-
-  // F[switchval_1]: 15:0
-  prim_subreg #(
-    .DW      (16),
-    .SWACCESS("RW"),
-    .RESVAL  (16'h0)
-  ) u_cfg_f1_1_switchval_1 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
-
-    // from register interface
-    .we     (cfg_f1_1_switchval_1_we),
-    .wd     (cfg_f1_1_switchval_1_wd),
-
-    // from internal hardware
-    .de     (1'b0),
-    .d      ('0  ),
-
-    // to internal hardware
-    .qe     (),
-    .q      (reg2hw.cfg_f1[1].switchval.q ),
-
-    // to register interface (read)
-    .qs     (cfg_f1_1_switchval_1_qs)
+    .qs     (cfg_f1_end_0_endval_0_qs)
   );
 
 
@@ -292,13 +237,13 @@ module pulser_reg_top #(
     .DW      (16),
     .SWACCESS("RW"),
     .RESVAL  (16'h0)
-  ) u_cfg_f1_1_endval_1 (
+  ) u_cfg_f1_end_0_endval_1 (
     .clk_i   (clk_i    ),
     .rst_ni  (rst_ni  ),
 
     // from register interface
-    .we     (cfg_f1_1_endval_1_we),
-    .wd     (cfg_f1_1_endval_1_wd),
+    .we     (cfg_f1_end_0_endval_1_we),
+    .wd     (cfg_f1_end_0_endval_1_wd),
 
     // from internal hardware
     .de     (1'b0),
@@ -306,28 +251,28 @@ module pulser_reg_top #(
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.cfg_f1[1].endval.q ),
+    .q      (reg2hw.cfg_f1_end[1].q ),
 
     // to register interface (read)
-    .qs     (cfg_f1_1_endval_1_qs)
+    .qs     (cfg_f1_end_0_endval_1_qs)
   );
 
 
-  // Subregister 2 of Multireg cfg_f1
-  // R[cfg_f1_2]: V(False)
+  // Subregister 2 of Multireg cfg_f1_end
+  // R[cfg_f1_end_1]: V(False)
 
-  // F[switchval_2]: 15:0
+  // F[endval_2]: 15:0
   prim_subreg #(
     .DW      (16),
     .SWACCESS("RW"),
     .RESVAL  (16'h0)
-  ) u_cfg_f1_2_switchval_2 (
+  ) u_cfg_f1_end_1_endval_2 (
     .clk_i   (clk_i    ),
     .rst_ni  (rst_ni  ),
 
     // from register interface
-    .we     (cfg_f1_2_switchval_2_we),
-    .wd     (cfg_f1_2_switchval_2_wd),
+    .we     (cfg_f1_end_1_endval_2_we),
+    .wd     (cfg_f1_end_1_endval_2_wd),
 
     // from internal hardware
     .de     (1'b0),
@@ -335,65 +280,10 @@ module pulser_reg_top #(
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.cfg_f1[2].switchval.q ),
+    .q      (reg2hw.cfg_f1_end[2].q ),
 
     // to register interface (read)
-    .qs     (cfg_f1_2_switchval_2_qs)
-  );
-
-
-  // F[endval_2]: 31:16
-  prim_subreg #(
-    .DW      (16),
-    .SWACCESS("RW"),
-    .RESVAL  (16'h0)
-  ) u_cfg_f1_2_endval_2 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
-
-    // from register interface
-    .we     (cfg_f1_2_endval_2_we),
-    .wd     (cfg_f1_2_endval_2_wd),
-
-    // from internal hardware
-    .de     (1'b0),
-    .d      ('0  ),
-
-    // to internal hardware
-    .qe     (),
-    .q      (reg2hw.cfg_f1[2].endval.q ),
-
-    // to register interface (read)
-    .qs     (cfg_f1_2_endval_2_qs)
-  );
-
-
-  // Subregister 3 of Multireg cfg_f1
-  // R[cfg_f1_3]: V(False)
-
-  // F[switchval_3]: 15:0
-  prim_subreg #(
-    .DW      (16),
-    .SWACCESS("RW"),
-    .RESVAL  (16'h0)
-  ) u_cfg_f1_3_switchval_3 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
-
-    // from register interface
-    .we     (cfg_f1_3_switchval_3_we),
-    .wd     (cfg_f1_3_switchval_3_wd),
-
-    // from internal hardware
-    .de     (1'b0),
-    .d      ('0  ),
-
-    // to internal hardware
-    .qe     (),
-    .q      (reg2hw.cfg_f1[3].switchval.q ),
-
-    // to register interface (read)
-    .qs     (cfg_f1_3_switchval_3_qs)
+    .qs     (cfg_f1_end_1_endval_2_qs)
   );
 
 
@@ -402,13 +292,13 @@ module pulser_reg_top #(
     .DW      (16),
     .SWACCESS("RW"),
     .RESVAL  (16'h0)
-  ) u_cfg_f1_3_endval_3 (
+  ) u_cfg_f1_end_1_endval_3 (
     .clk_i   (clk_i    ),
     .rst_ni  (rst_ni  ),
 
     // from register interface
-    .we     (cfg_f1_3_endval_3_we),
-    .wd     (cfg_f1_3_endval_3_wd),
+    .we     (cfg_f1_end_1_endval_3_we),
+    .wd     (cfg_f1_end_1_endval_3_wd),
 
     // from internal hardware
     .de     (1'b0),
@@ -416,30 +306,30 @@ module pulser_reg_top #(
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.cfg_f1[3].endval.q ),
+    .q      (reg2hw.cfg_f1_end[3].q ),
 
     // to register interface (read)
-    .qs     (cfg_f1_3_endval_3_qs)
+    .qs     (cfg_f1_end_1_endval_3_qs)
   );
 
 
 
 
-  // Subregister 0 of Multireg cfg_f2
-  // R[cfg_f2_0]: V(False)
+  // Subregister 0 of Multireg cfg_f1_switch
+  // R[cfg_f1_switch_0]: V(False)
 
   // F[switchval_0]: 15:0
   prim_subreg #(
     .DW      (16),
     .SWACCESS("RW"),
     .RESVAL  (16'h0)
-  ) u_cfg_f2_0_switchval_0 (
+  ) u_cfg_f1_switch_0_switchval_0 (
     .clk_i   (clk_i    ),
     .rst_ni  (rst_ni  ),
 
     // from register interface
-    .we     (cfg_f2_0_switchval_0_we),
-    .wd     (cfg_f2_0_switchval_0_wd),
+    .we     (cfg_f1_switch_0_switchval_0_we),
+    .wd     (cfg_f1_switch_0_switchval_0_wd),
 
     // from internal hardware
     .de     (1'b0),
@@ -447,25 +337,25 @@ module pulser_reg_top #(
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.cfg_f2[0].switchval.q ),
+    .q      (reg2hw.cfg_f1_switch[0].q ),
 
     // to register interface (read)
-    .qs     (cfg_f2_0_switchval_0_qs)
+    .qs     (cfg_f1_switch_0_switchval_0_qs)
   );
 
 
-  // F[endval_0]: 31:16
+  // F[switchval_1]: 31:16
   prim_subreg #(
     .DW      (16),
     .SWACCESS("RW"),
     .RESVAL  (16'h0)
-  ) u_cfg_f2_0_endval_0 (
+  ) u_cfg_f1_switch_0_switchval_1 (
     .clk_i   (clk_i    ),
     .rst_ni  (rst_ni  ),
 
     // from register interface
-    .we     (cfg_f2_0_endval_0_we),
-    .wd     (cfg_f2_0_endval_0_wd),
+    .we     (cfg_f1_switch_0_switchval_1_we),
+    .wd     (cfg_f1_switch_0_switchval_1_wd),
 
     // from internal hardware
     .de     (1'b0),
@@ -473,28 +363,28 @@ module pulser_reg_top #(
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.cfg_f2[0].endval.q ),
+    .q      (reg2hw.cfg_f1_switch[1].q ),
 
     // to register interface (read)
-    .qs     (cfg_f2_0_endval_0_qs)
+    .qs     (cfg_f1_switch_0_switchval_1_qs)
   );
 
 
-  // Subregister 1 of Multireg cfg_f2
-  // R[cfg_f2_1]: V(False)
+  // Subregister 2 of Multireg cfg_f1_switch
+  // R[cfg_f1_switch_1]: V(False)
 
-  // F[switchval_1]: 15:0
+  // F[switchval_2]: 15:0
   prim_subreg #(
     .DW      (16),
     .SWACCESS("RW"),
     .RESVAL  (16'h0)
-  ) u_cfg_f2_1_switchval_1 (
+  ) u_cfg_f1_switch_1_switchval_2 (
     .clk_i   (clk_i    ),
     .rst_ni  (rst_ni  ),
 
     // from register interface
-    .we     (cfg_f2_1_switchval_1_we),
-    .wd     (cfg_f2_1_switchval_1_wd),
+    .we     (cfg_f1_switch_1_switchval_2_we),
+    .wd     (cfg_f1_switch_1_switchval_2_wd),
 
     // from internal hardware
     .de     (1'b0),
@@ -502,10 +392,67 @@ module pulser_reg_top #(
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.cfg_f2[1].switchval.q ),
+    .q      (reg2hw.cfg_f1_switch[2].q ),
 
     // to register interface (read)
-    .qs     (cfg_f2_1_switchval_1_qs)
+    .qs     (cfg_f1_switch_1_switchval_2_qs)
+  );
+
+
+  // F[switchval_3]: 31:16
+  prim_subreg #(
+    .DW      (16),
+    .SWACCESS("RW"),
+    .RESVAL  (16'h0)
+  ) u_cfg_f1_switch_1_switchval_3 (
+    .clk_i   (clk_i    ),
+    .rst_ni  (rst_ni  ),
+
+    // from register interface
+    .we     (cfg_f1_switch_1_switchval_3_we),
+    .wd     (cfg_f1_switch_1_switchval_3_wd),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0  ),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.cfg_f1_switch[3].q ),
+
+    // to register interface (read)
+    .qs     (cfg_f1_switch_1_switchval_3_qs)
+  );
+
+
+
+
+  // Subregister 0 of Multireg cfg_f2_end
+  // R[cfg_f2_end_0]: V(False)
+
+  // F[endval_0]: 15:0
+  prim_subreg #(
+    .DW      (16),
+    .SWACCESS("RW"),
+    .RESVAL  (16'h0)
+  ) u_cfg_f2_end_0_endval_0 (
+    .clk_i   (clk_i    ),
+    .rst_ni  (rst_ni  ),
+
+    // from register interface
+    .we     (cfg_f2_end_0_endval_0_we),
+    .wd     (cfg_f2_end_0_endval_0_wd),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0  ),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.cfg_f2_end[0].q ),
+
+    // to register interface (read)
+    .qs     (cfg_f2_end_0_endval_0_qs)
   );
 
 
@@ -514,13 +461,13 @@ module pulser_reg_top #(
     .DW      (16),
     .SWACCESS("RW"),
     .RESVAL  (16'h0)
-  ) u_cfg_f2_1_endval_1 (
+  ) u_cfg_f2_end_0_endval_1 (
     .clk_i   (clk_i    ),
     .rst_ni  (rst_ni  ),
 
     // from register interface
-    .we     (cfg_f2_1_endval_1_we),
-    .wd     (cfg_f2_1_endval_1_wd),
+    .we     (cfg_f2_end_0_endval_1_we),
+    .wd     (cfg_f2_end_0_endval_1_wd),
 
     // from internal hardware
     .de     (1'b0),
@@ -528,28 +475,28 @@ module pulser_reg_top #(
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.cfg_f2[1].endval.q ),
+    .q      (reg2hw.cfg_f2_end[1].q ),
 
     // to register interface (read)
-    .qs     (cfg_f2_1_endval_1_qs)
+    .qs     (cfg_f2_end_0_endval_1_qs)
   );
 
 
-  // Subregister 2 of Multireg cfg_f2
-  // R[cfg_f2_2]: V(False)
+  // Subregister 2 of Multireg cfg_f2_end
+  // R[cfg_f2_end_1]: V(False)
 
-  // F[switchval_2]: 15:0
+  // F[endval_2]: 15:0
   prim_subreg #(
     .DW      (16),
     .SWACCESS("RW"),
     .RESVAL  (16'h0)
-  ) u_cfg_f2_2_switchval_2 (
+  ) u_cfg_f2_end_1_endval_2 (
     .clk_i   (clk_i    ),
     .rst_ni  (rst_ni  ),
 
     // from register interface
-    .we     (cfg_f2_2_switchval_2_we),
-    .wd     (cfg_f2_2_switchval_2_wd),
+    .we     (cfg_f2_end_1_endval_2_we),
+    .wd     (cfg_f2_end_1_endval_2_wd),
 
     // from internal hardware
     .de     (1'b0),
@@ -557,65 +504,10 @@ module pulser_reg_top #(
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.cfg_f2[2].switchval.q ),
+    .q      (reg2hw.cfg_f2_end[2].q ),
 
     // to register interface (read)
-    .qs     (cfg_f2_2_switchval_2_qs)
-  );
-
-
-  // F[endval_2]: 31:16
-  prim_subreg #(
-    .DW      (16),
-    .SWACCESS("RW"),
-    .RESVAL  (16'h0)
-  ) u_cfg_f2_2_endval_2 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
-
-    // from register interface
-    .we     (cfg_f2_2_endval_2_we),
-    .wd     (cfg_f2_2_endval_2_wd),
-
-    // from internal hardware
-    .de     (1'b0),
-    .d      ('0  ),
-
-    // to internal hardware
-    .qe     (),
-    .q      (reg2hw.cfg_f2[2].endval.q ),
-
-    // to register interface (read)
-    .qs     (cfg_f2_2_endval_2_qs)
-  );
-
-
-  // Subregister 3 of Multireg cfg_f2
-  // R[cfg_f2_3]: V(False)
-
-  // F[switchval_3]: 15:0
-  prim_subreg #(
-    .DW      (16),
-    .SWACCESS("RW"),
-    .RESVAL  (16'h0)
-  ) u_cfg_f2_3_switchval_3 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
-
-    // from register interface
-    .we     (cfg_f2_3_switchval_3_we),
-    .wd     (cfg_f2_3_switchval_3_wd),
-
-    // from internal hardware
-    .de     (1'b0),
-    .d      ('0  ),
-
-    // to internal hardware
-    .qe     (),
-    .q      (reg2hw.cfg_f2[3].switchval.q ),
-
-    // to register interface (read)
-    .qs     (cfg_f2_3_switchval_3_qs)
+    .qs     (cfg_f2_end_1_endval_2_qs)
   );
 
 
@@ -624,13 +516,13 @@ module pulser_reg_top #(
     .DW      (16),
     .SWACCESS("RW"),
     .RESVAL  (16'h0)
-  ) u_cfg_f2_3_endval_3 (
+  ) u_cfg_f2_end_1_endval_3 (
     .clk_i   (clk_i    ),
     .rst_ni  (rst_ni  ),
 
     // from register interface
-    .we     (cfg_f2_3_endval_3_we),
-    .wd     (cfg_f2_3_endval_3_wd),
+    .we     (cfg_f2_end_1_endval_3_we),
+    .wd     (cfg_f2_end_1_endval_3_wd),
 
     // from internal hardware
     .de     (1'b0),
@@ -638,30 +530,142 @@ module pulser_reg_top #(
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.cfg_f2[3].endval.q ),
+    .q      (reg2hw.cfg_f2_end[3].q ),
 
     // to register interface (read)
-    .qs     (cfg_f2_3_endval_3_qs)
+    .qs     (cfg_f2_end_1_endval_3_qs)
   );
 
 
 
 
-  // Subregister 0 of Multireg cfg_cnt
-  // R[cfg_cnt_0]: V(False)
+  // Subregister 0 of Multireg cfg_f2_switch
+  // R[cfg_f2_switch_0]: V(False)
+
+  // F[switchval_0]: 15:0
+  prim_subreg #(
+    .DW      (16),
+    .SWACCESS("RW"),
+    .RESVAL  (16'h0)
+  ) u_cfg_f2_switch_0_switchval_0 (
+    .clk_i   (clk_i    ),
+    .rst_ni  (rst_ni  ),
+
+    // from register interface
+    .we     (cfg_f2_switch_0_switchval_0_we),
+    .wd     (cfg_f2_switch_0_switchval_0_wd),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0  ),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.cfg_f2_switch[0].q ),
+
+    // to register interface (read)
+    .qs     (cfg_f2_switch_0_switchval_0_qs)
+  );
+
+
+  // F[switchval_1]: 31:16
+  prim_subreg #(
+    .DW      (16),
+    .SWACCESS("RW"),
+    .RESVAL  (16'h0)
+  ) u_cfg_f2_switch_0_switchval_1 (
+    .clk_i   (clk_i    ),
+    .rst_ni  (rst_ni  ),
+
+    // from register interface
+    .we     (cfg_f2_switch_0_switchval_1_we),
+    .wd     (cfg_f2_switch_0_switchval_1_wd),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0  ),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.cfg_f2_switch[1].q ),
+
+    // to register interface (read)
+    .qs     (cfg_f2_switch_0_switchval_1_qs)
+  );
+
+
+  // Subregister 2 of Multireg cfg_f2_switch
+  // R[cfg_f2_switch_1]: V(False)
+
+  // F[switchval_2]: 15:0
+  prim_subreg #(
+    .DW      (16),
+    .SWACCESS("RW"),
+    .RESVAL  (16'h0)
+  ) u_cfg_f2_switch_1_switchval_2 (
+    .clk_i   (clk_i    ),
+    .rst_ni  (rst_ni  ),
+
+    // from register interface
+    .we     (cfg_f2_switch_1_switchval_2_we),
+    .wd     (cfg_f2_switch_1_switchval_2_wd),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0  ),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.cfg_f2_switch[2].q ),
+
+    // to register interface (read)
+    .qs     (cfg_f2_switch_1_switchval_2_qs)
+  );
+
+
+  // F[switchval_3]: 31:16
+  prim_subreg #(
+    .DW      (16),
+    .SWACCESS("RW"),
+    .RESVAL  (16'h0)
+  ) u_cfg_f2_switch_1_switchval_3 (
+    .clk_i   (clk_i    ),
+    .rst_ni  (rst_ni  ),
+
+    // from register interface
+    .we     (cfg_f2_switch_1_switchval_3_we),
+    .wd     (cfg_f2_switch_1_switchval_3_wd),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0  ),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.cfg_f2_switch[3].q ),
+
+    // to register interface (read)
+    .qs     (cfg_f2_switch_1_switchval_3_qs)
+  );
+
+
+
+
+  // Subregister 0 of Multireg cfg_cnt_f1
+  // R[cfg_cnt_f1]: V(False)
 
   // F[f1_0]: 7:0
   prim_subreg #(
     .DW      (8),
     .SWACCESS("RW"),
     .RESVAL  (8'h0)
-  ) u_cfg_cnt_0_f1_0 (
+  ) u_cfg_cnt_f1_f1_0 (
     .clk_i   (clk_i    ),
     .rst_ni  (rst_ni  ),
 
     // from register interface
-    .we     (cfg_cnt_0_f1_0_we),
-    .wd     (cfg_cnt_0_f1_0_wd),
+    .we     (cfg_cnt_f1_f1_0_we),
+    .wd     (cfg_cnt_f1_f1_0_wd),
 
     // from internal hardware
     .de     (1'b0),
@@ -669,25 +673,25 @@ module pulser_reg_top #(
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.cfg_cnt[0].f1.q ),
+    .q      (reg2hw.cfg_cnt_f1[0].q ),
 
     // to register interface (read)
-    .qs     (cfg_cnt_0_f1_0_qs)
+    .qs     (cfg_cnt_f1_f1_0_qs)
   );
 
 
-  // F[f2_0]: 15:8
+  // F[f1_1]: 15:8
   prim_subreg #(
     .DW      (8),
     .SWACCESS("RW"),
     .RESVAL  (8'h0)
-  ) u_cfg_cnt_0_f2_0 (
+  ) u_cfg_cnt_f1_f1_1 (
     .clk_i   (clk_i    ),
     .rst_ni  (rst_ni  ),
 
     // from register interface
-    .we     (cfg_cnt_0_f2_0_we),
-    .wd     (cfg_cnt_0_f2_0_wd),
+    .we     (cfg_cnt_f1_f1_1_we),
+    .wd     (cfg_cnt_f1_f1_1_wd),
 
     // from internal hardware
     .de     (1'b0),
@@ -695,25 +699,25 @@ module pulser_reg_top #(
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.cfg_cnt[0].f2.q ),
+    .q      (reg2hw.cfg_cnt_f1[1].q ),
 
     // to register interface (read)
-    .qs     (cfg_cnt_0_f2_0_qs)
+    .qs     (cfg_cnt_f1_f1_1_qs)
   );
 
 
-  // F[count_stop_0]: 23:16
+  // F[f1_2]: 23:16
   prim_subreg #(
     .DW      (8),
     .SWACCESS("RW"),
     .RESVAL  (8'h0)
-  ) u_cfg_cnt_0_count_stop_0 (
+  ) u_cfg_cnt_f1_f1_2 (
     .clk_i   (clk_i    ),
     .rst_ni  (rst_ni  ),
 
     // from register interface
-    .we     (cfg_cnt_0_count_stop_0_we),
-    .wd     (cfg_cnt_0_count_stop_0_wd),
+    .we     (cfg_cnt_f1_f1_2_we),
+    .wd     (cfg_cnt_f1_f1_2_wd),
 
     // from internal hardware
     .de     (1'b0),
@@ -721,28 +725,25 @@ module pulser_reg_top #(
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.cfg_cnt[0].count_stop.q ),
+    .q      (reg2hw.cfg_cnt_f1[2].q ),
 
     // to register interface (read)
-    .qs     (cfg_cnt_0_count_stop_0_qs)
+    .qs     (cfg_cnt_f1_f1_2_qs)
   );
 
 
-  // Subregister 1 of Multireg cfg_cnt
-  // R[cfg_cnt_1]: V(False)
-
-  // F[f1_1]: 7:0
+  // F[f1_3]: 31:24
   prim_subreg #(
     .DW      (8),
     .SWACCESS("RW"),
     .RESVAL  (8'h0)
-  ) u_cfg_cnt_1_f1_1 (
+  ) u_cfg_cnt_f1_f1_3 (
     .clk_i   (clk_i    ),
     .rst_ni  (rst_ni  ),
 
     // from register interface
-    .we     (cfg_cnt_1_f1_1_we),
-    .wd     (cfg_cnt_1_f1_1_wd),
+    .we     (cfg_cnt_f1_f1_3_we),
+    .wd     (cfg_cnt_f1_f1_3_wd),
 
     // from internal hardware
     .de     (1'b0),
@@ -750,10 +751,41 @@ module pulser_reg_top #(
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.cfg_cnt[1].f1.q ),
+    .q      (reg2hw.cfg_cnt_f1[3].q ),
 
     // to register interface (read)
-    .qs     (cfg_cnt_1_f1_1_qs)
+    .qs     (cfg_cnt_f1_f1_3_qs)
+  );
+
+
+
+
+  // Subregister 0 of Multireg cfg_cnt_f2
+  // R[cfg_cnt_f2]: V(False)
+
+  // F[f2_0]: 7:0
+  prim_subreg #(
+    .DW      (8),
+    .SWACCESS("RW"),
+    .RESVAL  (8'h0)
+  ) u_cfg_cnt_f2_f2_0 (
+    .clk_i   (clk_i    ),
+    .rst_ni  (rst_ni  ),
+
+    // from register interface
+    .we     (cfg_cnt_f2_f2_0_we),
+    .wd     (cfg_cnt_f2_f2_0_wd),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0  ),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.cfg_cnt_f2[0].q ),
+
+    // to register interface (read)
+    .qs     (cfg_cnt_f2_f2_0_qs)
   );
 
 
@@ -762,13 +794,13 @@ module pulser_reg_top #(
     .DW      (8),
     .SWACCESS("RW"),
     .RESVAL  (8'h0)
-  ) u_cfg_cnt_1_f2_1 (
+  ) u_cfg_cnt_f2_f2_1 (
     .clk_i   (clk_i    ),
     .rst_ni  (rst_ni  ),
 
     // from register interface
-    .we     (cfg_cnt_1_f2_1_we),
-    .wd     (cfg_cnt_1_f2_1_wd),
+    .we     (cfg_cnt_f2_f2_1_we),
+    .wd     (cfg_cnt_f2_f2_1_wd),
 
     // from internal hardware
     .de     (1'b0),
@@ -776,25 +808,25 @@ module pulser_reg_top #(
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.cfg_cnt[1].f2.q ),
+    .q      (reg2hw.cfg_cnt_f2[1].q ),
 
     // to register interface (read)
-    .qs     (cfg_cnt_1_f2_1_qs)
+    .qs     (cfg_cnt_f2_f2_1_qs)
   );
 
 
-  // F[count_stop_1]: 23:16
+  // F[f2_2]: 23:16
   prim_subreg #(
     .DW      (8),
     .SWACCESS("RW"),
     .RESVAL  (8'h0)
-  ) u_cfg_cnt_1_count_stop_1 (
+  ) u_cfg_cnt_f2_f2_2 (
     .clk_i   (clk_i    ),
     .rst_ni  (rst_ni  ),
 
     // from register interface
-    .we     (cfg_cnt_1_count_stop_1_we),
-    .wd     (cfg_cnt_1_count_stop_1_wd),
+    .we     (cfg_cnt_f2_f2_2_we),
+    .wd     (cfg_cnt_f2_f2_2_wd),
 
     // from internal hardware
     .de     (1'b0),
@@ -802,28 +834,25 @@ module pulser_reg_top #(
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.cfg_cnt[1].count_stop.q ),
+    .q      (reg2hw.cfg_cnt_f2[2].q ),
 
     // to register interface (read)
-    .qs     (cfg_cnt_1_count_stop_1_qs)
+    .qs     (cfg_cnt_f2_f2_2_qs)
   );
 
 
-  // Subregister 2 of Multireg cfg_cnt
-  // R[cfg_cnt_2]: V(False)
-
-  // F[f1_2]: 7:0
+  // F[f2_3]: 31:24
   prim_subreg #(
     .DW      (8),
     .SWACCESS("RW"),
     .RESVAL  (8'h0)
-  ) u_cfg_cnt_2_f1_2 (
+  ) u_cfg_cnt_f2_f2_3 (
     .clk_i   (clk_i    ),
     .rst_ni  (rst_ni  ),
 
     // from register interface
-    .we     (cfg_cnt_2_f1_2_we),
-    .wd     (cfg_cnt_2_f1_2_wd),
+    .we     (cfg_cnt_f2_f2_3_we),
+    .wd     (cfg_cnt_f2_f2_3_wd),
 
     // from internal hardware
     .de     (1'b0),
@@ -831,25 +860,30 @@ module pulser_reg_top #(
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.cfg_cnt[2].f1.q ),
+    .q      (reg2hw.cfg_cnt_f2[3].q ),
 
     // to register interface (read)
-    .qs     (cfg_cnt_2_f1_2_qs)
+    .qs     (cfg_cnt_f2_f2_3_qs)
   );
 
 
-  // F[f2_2]: 15:8
+
+
+  // Subregister 0 of Multireg cfg_cnt_stop
+  // R[cfg_cnt_stop]: V(False)
+
+  // F[count_stop_0]: 7:0
   prim_subreg #(
     .DW      (8),
     .SWACCESS("RW"),
     .RESVAL  (8'h0)
-  ) u_cfg_cnt_2_f2_2 (
+  ) u_cfg_cnt_stop_count_stop_0 (
     .clk_i   (clk_i    ),
     .rst_ni  (rst_ni  ),
 
     // from register interface
-    .we     (cfg_cnt_2_f2_2_we),
-    .wd     (cfg_cnt_2_f2_2_wd),
+    .we     (cfg_cnt_stop_count_stop_0_we),
+    .wd     (cfg_cnt_stop_count_stop_0_wd),
 
     // from internal hardware
     .de     (1'b0),
@@ -857,10 +891,36 @@ module pulser_reg_top #(
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.cfg_cnt[2].f2.q ),
+    .q      (reg2hw.cfg_cnt_stop[0].q ),
 
     // to register interface (read)
-    .qs     (cfg_cnt_2_f2_2_qs)
+    .qs     (cfg_cnt_stop_count_stop_0_qs)
+  );
+
+
+  // F[count_stop_1]: 15:8
+  prim_subreg #(
+    .DW      (8),
+    .SWACCESS("RW"),
+    .RESVAL  (8'h0)
+  ) u_cfg_cnt_stop_count_stop_1 (
+    .clk_i   (clk_i    ),
+    .rst_ni  (rst_ni  ),
+
+    // from register interface
+    .we     (cfg_cnt_stop_count_stop_1_we),
+    .wd     (cfg_cnt_stop_count_stop_1_wd),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0  ),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.cfg_cnt_stop[1].q ),
+
+    // to register interface (read)
+    .qs     (cfg_cnt_stop_count_stop_1_qs)
   );
 
 
@@ -869,13 +929,13 @@ module pulser_reg_top #(
     .DW      (8),
     .SWACCESS("RW"),
     .RESVAL  (8'h0)
-  ) u_cfg_cnt_2_count_stop_2 (
+  ) u_cfg_cnt_stop_count_stop_2 (
     .clk_i   (clk_i    ),
     .rst_ni  (rst_ni  ),
 
     // from register interface
-    .we     (cfg_cnt_2_count_stop_2_we),
-    .wd     (cfg_cnt_2_count_stop_2_wd),
+    .we     (cfg_cnt_stop_count_stop_2_we),
+    .wd     (cfg_cnt_stop_count_stop_2_wd),
 
     // from internal hardware
     .de     (1'b0),
@@ -883,28 +943,25 @@ module pulser_reg_top #(
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.cfg_cnt[2].count_stop.q ),
+    .q      (reg2hw.cfg_cnt_stop[2].q ),
 
     // to register interface (read)
-    .qs     (cfg_cnt_2_count_stop_2_qs)
+    .qs     (cfg_cnt_stop_count_stop_2_qs)
   );
 
 
-  // Subregister 3 of Multireg cfg_cnt
-  // R[cfg_cnt_3]: V(False)
-
-  // F[f1_3]: 7:0
+  // F[count_stop_3]: 31:24
   prim_subreg #(
     .DW      (8),
     .SWACCESS("RW"),
     .RESVAL  (8'h0)
-  ) u_cfg_cnt_3_f1_3 (
+  ) u_cfg_cnt_stop_count_stop_3 (
     .clk_i   (clk_i    ),
     .rst_ni  (rst_ni  ),
 
     // from register interface
-    .we     (cfg_cnt_3_f1_3_we),
-    .wd     (cfg_cnt_3_f1_3_wd),
+    .we     (cfg_cnt_stop_count_stop_3_we),
+    .wd     (cfg_cnt_stop_count_stop_3_wd),
 
     // from internal hardware
     .de     (1'b0),
@@ -912,76 +969,24 @@ module pulser_reg_top #(
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.cfg_cnt[3].f1.q ),
+    .q      (reg2hw.cfg_cnt_stop[3].q ),
 
     // to register interface (read)
-    .qs     (cfg_cnt_3_f1_3_qs)
-  );
-
-
-  // F[f2_3]: 15:8
-  prim_subreg #(
-    .DW      (8),
-    .SWACCESS("RW"),
-    .RESVAL  (8'h0)
-  ) u_cfg_cnt_3_f2_3 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
-
-    // from register interface
-    .we     (cfg_cnt_3_f2_3_we),
-    .wd     (cfg_cnt_3_f2_3_wd),
-
-    // from internal hardware
-    .de     (1'b0),
-    .d      ('0  ),
-
-    // to internal hardware
-    .qe     (),
-    .q      (reg2hw.cfg_cnt[3].f2.q ),
-
-    // to register interface (read)
-    .qs     (cfg_cnt_3_f2_3_qs)
-  );
-
-
-  // F[count_stop_3]: 23:16
-  prim_subreg #(
-    .DW      (8),
-    .SWACCESS("RW"),
-    .RESVAL  (8'h0)
-  ) u_cfg_cnt_3_count_stop_3 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
-
-    // from register interface
-    .we     (cfg_cnt_3_count_stop_3_we),
-    .wd     (cfg_cnt_3_count_stop_3_wd),
-
-    // from internal hardware
-    .de     (1'b0),
-    .d      ('0  ),
-
-    // to internal hardware
-    .qe     (),
-    .q      (reg2hw.cfg_cnt[3].count_stop.q ),
-
-    // to register interface (read)
-    .qs     (cfg_cnt_3_count_stop_3_qs)
+    .qs     (cfg_cnt_stop_count_stop_3_qs)
   );
 
 
 
 
-  // Subregister 0 of Multireg status
-  // R[status_0]: V(False)
+  // Subregister 0 of Multireg ready
+  // R[ready]: V(False)
 
   // F[ready_0]: 0:0
   prim_subreg #(
     .DW      (1),
     .SWACCESS("RO"),
     .RESVAL  (1'h0)
-  ) u_status_0_ready_0 (
+  ) u_ready_ready_0 (
     .clk_i   (clk_i    ),
     .rst_ni  (rst_ni  ),
 
@@ -989,52 +994,24 @@ module pulser_reg_top #(
     .wd     ('0  ),
 
     // from internal hardware
-    .de     (hw2reg.status[0].ready.de),
-    .d      (hw2reg.status[0].ready.d ),
+    .de     (hw2reg.ready[0].de),
+    .d      (hw2reg.ready[0].d ),
 
     // to internal hardware
     .qe     (),
     .q      (),
 
     // to register interface (read)
-    .qs     (status_0_ready_0_qs)
+    .qs     (ready_ready_0_qs)
   );
 
 
-  // F[state_0]: 3:1
-  prim_subreg #(
-    .DW      (3),
-    .SWACCESS("RO"),
-    .RESVAL  (3'h0)
-  ) u_status_0_state_0 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
-
-    .we     (1'b0),
-    .wd     ('0  ),
-
-    // from internal hardware
-    .de     (hw2reg.status[0].state.de),
-    .d      (hw2reg.status[0].state.d ),
-
-    // to internal hardware
-    .qe     (),
-    .q      (),
-
-    // to register interface (read)
-    .qs     (status_0_state_0_qs)
-  );
-
-
-  // Subregister 1 of Multireg status
-  // R[status_1]: V(False)
-
-  // F[ready_1]: 0:0
+  // F[ready_1]: 1:1
   prim_subreg #(
     .DW      (1),
     .SWACCESS("RO"),
     .RESVAL  (1'h0)
-  ) u_status_1_ready_1 (
+  ) u_ready_ready_1 (
     .clk_i   (clk_i    ),
     .rst_ni  (rst_ni  ),
 
@@ -1042,52 +1019,24 @@ module pulser_reg_top #(
     .wd     ('0  ),
 
     // from internal hardware
-    .de     (hw2reg.status[1].ready.de),
-    .d      (hw2reg.status[1].ready.d ),
+    .de     (hw2reg.ready[1].de),
+    .d      (hw2reg.ready[1].d ),
 
     // to internal hardware
     .qe     (),
     .q      (),
 
     // to register interface (read)
-    .qs     (status_1_ready_1_qs)
+    .qs     (ready_ready_1_qs)
   );
 
 
-  // F[state_1]: 3:1
-  prim_subreg #(
-    .DW      (3),
-    .SWACCESS("RO"),
-    .RESVAL  (3'h0)
-  ) u_status_1_state_1 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
-
-    .we     (1'b0),
-    .wd     ('0  ),
-
-    // from internal hardware
-    .de     (hw2reg.status[1].state.de),
-    .d      (hw2reg.status[1].state.d ),
-
-    // to internal hardware
-    .qe     (),
-    .q      (),
-
-    // to register interface (read)
-    .qs     (status_1_state_1_qs)
-  );
-
-
-  // Subregister 2 of Multireg status
-  // R[status_2]: V(False)
-
-  // F[ready_2]: 0:0
+  // F[ready_2]: 2:2
   prim_subreg #(
     .DW      (1),
     .SWACCESS("RO"),
     .RESVAL  (1'h0)
-  ) u_status_2_ready_2 (
+  ) u_ready_ready_2 (
     .clk_i   (clk_i    ),
     .rst_ni  (rst_ni  ),
 
@@ -1095,52 +1044,24 @@ module pulser_reg_top #(
     .wd     ('0  ),
 
     // from internal hardware
-    .de     (hw2reg.status[2].ready.de),
-    .d      (hw2reg.status[2].ready.d ),
+    .de     (hw2reg.ready[2].de),
+    .d      (hw2reg.ready[2].d ),
 
     // to internal hardware
     .qe     (),
     .q      (),
 
     // to register interface (read)
-    .qs     (status_2_ready_2_qs)
+    .qs     (ready_ready_2_qs)
   );
 
 
-  // F[state_2]: 3:1
-  prim_subreg #(
-    .DW      (3),
-    .SWACCESS("RO"),
-    .RESVAL  (3'h0)
-  ) u_status_2_state_2 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
-
-    .we     (1'b0),
-    .wd     ('0  ),
-
-    // from internal hardware
-    .de     (hw2reg.status[2].state.de),
-    .d      (hw2reg.status[2].state.d ),
-
-    // to internal hardware
-    .qe     (),
-    .q      (),
-
-    // to register interface (read)
-    .qs     (status_2_state_2_qs)
-  );
-
-
-  // Subregister 3 of Multireg status
-  // R[status_3]: V(False)
-
-  // F[ready_3]: 0:0
+  // F[ready_3]: 3:3
   prim_subreg #(
     .DW      (1),
     .SWACCESS("RO"),
     .RESVAL  (1'h0)
-  ) u_status_3_ready_3 (
+  ) u_ready_ready_3 (
     .clk_i   (clk_i    ),
     .rst_ni  (rst_ni  ),
 
@@ -1148,24 +1069,29 @@ module pulser_reg_top #(
     .wd     ('0  ),
 
     // from internal hardware
-    .de     (hw2reg.status[3].ready.de),
-    .d      (hw2reg.status[3].ready.d ),
+    .de     (hw2reg.ready[3].de),
+    .d      (hw2reg.ready[3].d ),
 
     // to internal hardware
     .qe     (),
     .q      (),
 
     // to register interface (read)
-    .qs     (status_3_ready_3_qs)
+    .qs     (ready_ready_3_qs)
   );
 
 
-  // F[state_3]: 3:1
+
+
+  // Subregister 0 of Multireg state
+  // R[state]: V(False)
+
+  // F[state_0]: 2:0
   prim_subreg #(
     .DW      (3),
     .SWACCESS("RO"),
     .RESVAL  (3'h0)
-  ) u_status_3_state_3 (
+  ) u_state_state_0 (
     .clk_i   (clk_i    ),
     .rst_ni  (rst_ni  ),
 
@@ -1173,35 +1099,110 @@ module pulser_reg_top #(
     .wd     ('0  ),
 
     // from internal hardware
-    .de     (hw2reg.status[3].state.de),
-    .d      (hw2reg.status[3].state.d ),
+    .de     (hw2reg.state[0].de),
+    .d      (hw2reg.state[0].d ),
 
     // to internal hardware
     .qe     (),
     .q      (),
 
     // to register interface (read)
-    .qs     (status_3_state_3_qs)
+    .qs     (state_state_0_qs)
+  );
+
+
+  // F[state_1]: 5:3
+  prim_subreg #(
+    .DW      (3),
+    .SWACCESS("RO"),
+    .RESVAL  (3'h0)
+  ) u_state_state_1 (
+    .clk_i   (clk_i    ),
+    .rst_ni  (rst_ni  ),
+
+    .we     (1'b0),
+    .wd     ('0  ),
+
+    // from internal hardware
+    .de     (hw2reg.state[1].de),
+    .d      (hw2reg.state[1].d ),
+
+    // to internal hardware
+    .qe     (),
+    .q      (),
+
+    // to register interface (read)
+    .qs     (state_state_1_qs)
+  );
+
+
+  // F[state_2]: 8:6
+  prim_subreg #(
+    .DW      (3),
+    .SWACCESS("RO"),
+    .RESVAL  (3'h0)
+  ) u_state_state_2 (
+    .clk_i   (clk_i    ),
+    .rst_ni  (rst_ni  ),
+
+    .we     (1'b0),
+    .wd     ('0  ),
+
+    // from internal hardware
+    .de     (hw2reg.state[2].de),
+    .d      (hw2reg.state[2].d ),
+
+    // to internal hardware
+    .qe     (),
+    .q      (),
+
+    // to register interface (read)
+    .qs     (state_state_2_qs)
+  );
+
+
+  // F[state_3]: 11:9
+  prim_subreg #(
+    .DW      (3),
+    .SWACCESS("RO"),
+    .RESVAL  (3'h0)
+  ) u_state_state_3 (
+    .clk_i   (clk_i    ),
+    .rst_ni  (rst_ni  ),
+
+    .we     (1'b0),
+    .wd     ('0  ),
+
+    // from internal hardware
+    .de     (hw2reg.state[3].de),
+    .d      (hw2reg.state[3].d ),
+
+    // to internal hardware
+    .qe     (),
+    .q      (),
+
+    // to register interface (read)
+    .qs     (state_state_3_qs)
   );
 
 
 
 
-  // Subregister 0 of Multireg ctrl_out
-  // R[ctrl_out_0]: V(False)
+  // Subregister 0 of Multireg ctrl_inv_out
+  // R[ctrl_inv_out]: V(False)
 
   // F[invert_out_0]: 0:0
   prim_subreg #(
     .DW      (1),
     .SWACCESS("RW"),
     .RESVAL  (1'h0)
-  ) u_ctrl_out_0_invert_out_0 (
+  ) u_ctrl_inv_out_invert_out_0 (
     .clk_i   (clk_i    ),
     .rst_ni  (rst_ni  ),
 
     // from register interface
-    .we     (ctrl_out_0_invert_out_0_we),
-    .wd     (ctrl_out_0_invert_out_0_wd),
+    .we     (ctrl_inv_out_invert_out_0_we),
+    .wd     (ctrl_inv_out_invert_out_0_wd),
 
     // from internal hardware
     .de     (1'b0),
@@ -1209,25 +1210,108 @@ module pulser_reg_top #(
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.ctrl_out[0].invert_out.q ),
+    .q      (reg2hw.ctrl_inv_out[0].q ),
 
     // to register interface (read)
-    .qs     (ctrl_out_0_invert_out_0_qs)
+    .qs     (ctrl_inv_out_invert_out_0_qs)
   );
 
+
+  // F[invert_out_1]: 1:1
+  prim_subreg #(
+    .DW      (1),
+    .SWACCESS("RW"),
+    .RESVAL  (1'h0)
+  ) u_ctrl_inv_out_invert_out_1 (
+    .clk_i   (clk_i    ),
+    .rst_ni  (rst_ni  ),
+
+    // from register interface
+    .we     (ctrl_inv_out_invert_out_1_we),
+    .wd     (ctrl_inv_out_invert_out_1_wd),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0  ),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.ctrl_inv_out[1].q ),
+
+    // to register interface (read)
+    .qs     (ctrl_inv_out_invert_out_1_qs)
+  );
+
+
+  // F[invert_out_2]: 2:2
+  prim_subreg #(
+    .DW      (1),
+    .SWACCESS("RW"),
+    .RESVAL  (1'h0)
+  ) u_ctrl_inv_out_invert_out_2 (
+    .clk_i   (clk_i    ),
+    .rst_ni  (rst_ni  ),
+
+    // from register interface
+    .we     (ctrl_inv_out_invert_out_2_we),
+    .wd     (ctrl_inv_out_invert_out_2_wd),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0  ),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.ctrl_inv_out[2].q ),
+
+    // to register interface (read)
+    .qs     (ctrl_inv_out_invert_out_2_qs)
+  );
+
+
+  // F[invert_out_3]: 3:3
+  prim_subreg #(
+    .DW      (1),
+    .SWACCESS("RW"),
+    .RESVAL  (1'h0)
+  ) u_ctrl_inv_out_invert_out_3 (
+    .clk_i   (clk_i    ),
+    .rst_ni  (rst_ni  ),
+
+    // from register interface
+    .we     (ctrl_inv_out_invert_out_3_we),
+    .wd     (ctrl_inv_out_invert_out_3_wd),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0  ),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.ctrl_inv_out[3].q ),
+
+    // to register interface (read)
+    .qs     (ctrl_inv_out_invert_out_3_qs)
+  );
+
+
+
+
+  // Subregister 0 of Multireg ctrl_idle_out
+  // R[ctrl_idle_out]: V(False)
 
   // F[idle_out_0]: 1:1
   prim_subreg #(
     .DW      (1),
     .SWACCESS("RW"),
     .RESVAL  (1'h0)
-  ) u_ctrl_out_0_idle_out_0 (
+  ) u_ctrl_idle_out_idle_out_0 (
     .clk_i   (clk_i    ),
     .rst_ni  (rst_ni  ),
 
     // from register interface
-    .we     (ctrl_out_0_idle_out_0_we),
-    .wd     (ctrl_out_0_idle_out_0_wd),
+    .we     (ctrl_idle_out_idle_out_0_we),
+    .wd     (ctrl_idle_out_idle_out_0_wd),
 
     // from internal hardware
     .de     (1'b0),
@@ -1235,28 +1319,25 @@ module pulser_reg_top #(
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.ctrl_out[0].idle_out.q ),
+    .q      (reg2hw.ctrl_idle_out[0].q ),
 
     // to register interface (read)
-    .qs     (ctrl_out_0_idle_out_0_qs)
+    .qs     (ctrl_idle_out_idle_out_0_qs)
   );
 
 
-  // Subregister 1 of Multireg ctrl_out
-  // R[ctrl_out_1]: V(False)
-
-  // F[invert_out_1]: 0:0
+  // F[idle_out_1]: 3:3
   prim_subreg #(
     .DW      (1),
     .SWACCESS("RW"),
     .RESVAL  (1'h0)
-  ) u_ctrl_out_1_invert_out_1 (
+  ) u_ctrl_idle_out_idle_out_1 (
     .clk_i   (clk_i    ),
     .rst_ni  (rst_ni  ),
 
     // from register interface
-    .we     (ctrl_out_1_invert_out_1_we),
-    .wd     (ctrl_out_1_invert_out_1_wd),
+    .we     (ctrl_idle_out_idle_out_1_we),
+    .wd     (ctrl_idle_out_idle_out_1_wd),
 
     // from internal hardware
     .de     (1'b0),
@@ -1264,25 +1345,25 @@ module pulser_reg_top #(
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.ctrl_out[1].invert_out.q ),
+    .q      (reg2hw.ctrl_idle_out[1].q ),
 
     // to register interface (read)
-    .qs     (ctrl_out_1_invert_out_1_qs)
+    .qs     (ctrl_idle_out_idle_out_1_qs)
   );
 
 
-  // F[idle_out_1]: 1:1
+  // F[idle_out_2]: 5:5
   prim_subreg #(
     .DW      (1),
     .SWACCESS("RW"),
     .RESVAL  (1'h0)
-  ) u_ctrl_out_1_idle_out_1 (
+  ) u_ctrl_idle_out_idle_out_2 (
     .clk_i   (clk_i    ),
     .rst_ni  (rst_ni  ),
 
     // from register interface
-    .we     (ctrl_out_1_idle_out_1_we),
-    .wd     (ctrl_out_1_idle_out_1_wd),
+    .we     (ctrl_idle_out_idle_out_2_we),
+    .wd     (ctrl_idle_out_idle_out_2_wd),
 
     // from internal hardware
     .de     (1'b0),
@@ -1290,28 +1371,25 @@ module pulser_reg_top #(
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.ctrl_out[1].idle_out.q ),
+    .q      (reg2hw.ctrl_idle_out[2].q ),
 
     // to register interface (read)
-    .qs     (ctrl_out_1_idle_out_1_qs)
+    .qs     (ctrl_idle_out_idle_out_2_qs)
   );
 
 
-  // Subregister 2 of Multireg ctrl_out
-  // R[ctrl_out_2]: V(False)
-
-  // F[invert_out_2]: 0:0
+  // F[idle_out_3]: 7:7
   prim_subreg #(
     .DW      (1),
     .SWACCESS("RW"),
     .RESVAL  (1'h0)
-  ) u_ctrl_out_2_invert_out_2 (
+  ) u_ctrl_idle_out_idle_out_3 (
     .clk_i   (clk_i    ),
     .rst_ni  (rst_ni  ),
 
     // from register interface
-    .we     (ctrl_out_2_invert_out_2_we),
-    .wd     (ctrl_out_2_invert_out_2_wd),
+    .we     (ctrl_idle_out_idle_out_3_we),
+    .wd     (ctrl_idle_out_idle_out_3_wd),
 
     // from internal hardware
     .de     (1'b0),
@@ -1319,224 +1397,139 @@ module pulser_reg_top #(
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.ctrl_out[2].invert_out.q ),
+    .q      (reg2hw.ctrl_idle_out[3].q ),
 
     // to register interface (read)
-    .qs     (ctrl_out_2_invert_out_2_qs)
-  );
-
-
-  // F[idle_out_2]: 1:1
-  prim_subreg #(
-    .DW      (1),
-    .SWACCESS("RW"),
-    .RESVAL  (1'h0)
-  ) u_ctrl_out_2_idle_out_2 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
-
-    // from register interface
-    .we     (ctrl_out_2_idle_out_2_we),
-    .wd     (ctrl_out_2_idle_out_2_wd),
-
-    // from internal hardware
-    .de     (1'b0),
-    .d      ('0  ),
-
-    // to internal hardware
-    .qe     (),
-    .q      (reg2hw.ctrl_out[2].idle_out.q ),
-
-    // to register interface (read)
-    .qs     (ctrl_out_2_idle_out_2_qs)
-  );
-
-
-  // Subregister 3 of Multireg ctrl_out
-  // R[ctrl_out_3]: V(False)
-
-  // F[invert_out_3]: 0:0
-  prim_subreg #(
-    .DW      (1),
-    .SWACCESS("RW"),
-    .RESVAL  (1'h0)
-  ) u_ctrl_out_3_invert_out_3 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
-
-    // from register interface
-    .we     (ctrl_out_3_invert_out_3_we),
-    .wd     (ctrl_out_3_invert_out_3_wd),
-
-    // from internal hardware
-    .de     (1'b0),
-    .d      ('0  ),
-
-    // to internal hardware
-    .qe     (),
-    .q      (reg2hw.ctrl_out[3].invert_out.q ),
-
-    // to register interface (read)
-    .qs     (ctrl_out_3_invert_out_3_qs)
-  );
-
-
-  // F[idle_out_3]: 1:1
-  prim_subreg #(
-    .DW      (1),
-    .SWACCESS("RW"),
-    .RESVAL  (1'h0)
-  ) u_ctrl_out_3_idle_out_3 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
-
-    // from register interface
-    .we     (ctrl_out_3_idle_out_3_we),
-    .wd     (ctrl_out_3_idle_out_3_wd),
-
-    // from internal hardware
-    .de     (1'b0),
-    .d      ('0  ),
-
-    // to internal hardware
-    .qe     (),
-    .q      (reg2hw.ctrl_out[3].idle_out.q ),
-
-    // to register interface (read)
-    .qs     (ctrl_out_3_idle_out_3_qs)
+    .qs     (ctrl_idle_out_idle_out_3_qs)
   );
 
 
 
 
-  // Subregister 0 of Multireg ctrl
-  // R[ctrl_0]: V(True)
+  // Subregister 0 of Multireg ctrl_start
+  // R[ctrl_start]: V(True)
 
   // F[start_0]: 0:0
   prim_subreg_ext #(
     .DW    (1)
-  ) u_ctrl_0_start_0 (
+  ) u_ctrl_start_start_0 (
     .re     (1'b0),
-    .we     (ctrl_0_start_0_we),
-    .wd     (ctrl_0_start_0_wd),
+    .we     (ctrl_start_start_0_we),
+    .wd     (ctrl_start_start_0_wd),
     .d      ('0),
     .qre    (),
-    .qe     (reg2hw.ctrl[0].start.qe),
-    .q      (reg2hw.ctrl[0].start.q ),
+    .qe     (reg2hw.ctrl_start[0].qe),
+    .q      (reg2hw.ctrl_start[0].q ),
     .qs     ()
   );
 
+
+  // F[start_1]: 1:1
+  prim_subreg_ext #(
+    .DW    (1)
+  ) u_ctrl_start_start_1 (
+    .re     (1'b0),
+    .we     (ctrl_start_start_1_we),
+    .wd     (ctrl_start_start_1_wd),
+    .d      ('0),
+    .qre    (),
+    .qe     (reg2hw.ctrl_start[1].qe),
+    .q      (reg2hw.ctrl_start[1].q ),
+    .qs     ()
+  );
+
+
+  // F[start_2]: 2:2
+  prim_subreg_ext #(
+    .DW    (1)
+  ) u_ctrl_start_start_2 (
+    .re     (1'b0),
+    .we     (ctrl_start_start_2_we),
+    .wd     (ctrl_start_start_2_wd),
+    .d      ('0),
+    .qre    (),
+    .qe     (reg2hw.ctrl_start[2].qe),
+    .q      (reg2hw.ctrl_start[2].q ),
+    .qs     ()
+  );
+
+
+  // F[start_3]: 3:3
+  prim_subreg_ext #(
+    .DW    (1)
+  ) u_ctrl_start_start_3 (
+    .re     (1'b0),
+    .we     (ctrl_start_start_3_we),
+    .wd     (ctrl_start_start_3_wd),
+    .d      ('0),
+    .qre    (),
+    .qe     (reg2hw.ctrl_start[3].qe),
+    .q      (reg2hw.ctrl_start[3].q ),
+    .qs     ()
+  );
+
+
+
+
+  // Subregister 0 of Multireg ctrl_stop
+  // R[ctrl_stop]: V(True)
 
   // F[stop_0]: 1:1
   prim_subreg_ext #(
     .DW    (1)
-  ) u_ctrl_0_stop_0 (
+  ) u_ctrl_stop_stop_0 (
     .re     (1'b0),
-    .we     (ctrl_0_stop_0_we),
-    .wd     (ctrl_0_stop_0_wd),
+    .we     (ctrl_stop_stop_0_we),
+    .wd     (ctrl_stop_stop_0_wd),
     .d      ('0),
     .qre    (),
-    .qe     (reg2hw.ctrl[0].stop.qe),
-    .q      (reg2hw.ctrl[0].stop.q ),
+    .qe     (reg2hw.ctrl_stop[0].qe),
+    .q      (reg2hw.ctrl_stop[0].q ),
     .qs     ()
   );
 
 
-  // Subregister 1 of Multireg ctrl
-  // R[ctrl_1]: V(True)
-
-  // F[start_1]: 0:0
+  // F[stop_1]: 3:3
   prim_subreg_ext #(
     .DW    (1)
-  ) u_ctrl_1_start_1 (
+  ) u_ctrl_stop_stop_1 (
     .re     (1'b0),
-    .we     (ctrl_1_start_1_we),
-    .wd     (ctrl_1_start_1_wd),
+    .we     (ctrl_stop_stop_1_we),
+    .wd     (ctrl_stop_stop_1_wd),
     .d      ('0),
     .qre    (),
-    .qe     (reg2hw.ctrl[1].start.qe),
-    .q      (reg2hw.ctrl[1].start.q ),
+    .qe     (reg2hw.ctrl_stop[1].qe),
+    .q      (reg2hw.ctrl_stop[1].q ),
     .qs     ()
   );
 
 
-  // F[stop_1]: 1:1
+  // F[stop_2]: 5:5
   prim_subreg_ext #(
     .DW    (1)
-  ) u_ctrl_1_stop_1 (
+  ) u_ctrl_stop_stop_2 (
     .re     (1'b0),
-    .we     (ctrl_1_stop_1_we),
-    .wd     (ctrl_1_stop_1_wd),
+    .we     (ctrl_stop_stop_2_we),
+    .wd     (ctrl_stop_stop_2_wd),
     .d      ('0),
     .qre    (),
-    .qe     (reg2hw.ctrl[1].stop.qe),
-    .q      (reg2hw.ctrl[1].stop.q ),
+    .qe     (reg2hw.ctrl_stop[2].qe),
+    .q      (reg2hw.ctrl_stop[2].q ),
     .qs     ()
   );
 
 
-  // Subregister 2 of Multireg ctrl
-  // R[ctrl_2]: V(True)
-
-  // F[start_2]: 0:0
+  // F[stop_3]: 7:7
   prim_subreg_ext #(
     .DW    (1)
-  ) u_ctrl_2_start_2 (
+  ) u_ctrl_stop_stop_3 (
     .re     (1'b0),
-    .we     (ctrl_2_start_2_we),
-    .wd     (ctrl_2_start_2_wd),
+    .we     (ctrl_stop_stop_3_we),
+    .wd     (ctrl_stop_stop_3_wd),
     .d      ('0),
     .qre    (),
-    .qe     (reg2hw.ctrl[2].start.qe),
-    .q      (reg2hw.ctrl[2].start.q ),
-    .qs     ()
-  );
-
-
-  // F[stop_2]: 1:1
-  prim_subreg_ext #(
-    .DW    (1)
-  ) u_ctrl_2_stop_2 (
-    .re     (1'b0),
-    .we     (ctrl_2_stop_2_we),
-    .wd     (ctrl_2_stop_2_wd),
-    .d      ('0),
-    .qre    (),
-    .qe     (reg2hw.ctrl[2].stop.qe),
-    .q      (reg2hw.ctrl[2].stop.q ),
-    .qs     ()
-  );
-
-
-  // Subregister 3 of Multireg ctrl
-  // R[ctrl_3]: V(True)
-
-  // F[start_3]: 0:0
-  prim_subreg_ext #(
-    .DW    (1)
-  ) u_ctrl_3_start_3 (
-    .re     (1'b0),
-    .we     (ctrl_3_start_3_we),
-    .wd     (ctrl_3_start_3_wd),
-    .d      ('0),
-    .qre    (),
-    .qe     (reg2hw.ctrl[3].start.qe),
-    .q      (reg2hw.ctrl[3].start.q ),
-    .qs     ()
-  );
-
-
-  // F[stop_3]: 1:1
-  prim_subreg_ext #(
-    .DW    (1)
-  ) u_ctrl_3_stop_3 (
-    .re     (1'b0),
-    .we     (ctrl_3_stop_3_we),
-    .wd     (ctrl_3_stop_3_wd),
-    .d      ('0),
-    .qre    (),
-    .qe     (reg2hw.ctrl[3].stop.qe),
-    .q      (reg2hw.ctrl[3].stop.q ),
+    .qe     (reg2hw.ctrl_stop[3].qe),
+    .q      (reg2hw.ctrl_stop[3].q ),
     .qs     ()
   );
 
@@ -1544,33 +1537,26 @@ module pulser_reg_top #(
 
 
 
-  logic [23:0] addr_hit;
+  logic [16:0] addr_hit;
   always_comb begin
     addr_hit = '0;
-    addr_hit[ 0] = (reg_addr == PULSER_CFG_F1_0_OFFSET);
-    addr_hit[ 1] = (reg_addr == PULSER_CFG_F1_1_OFFSET);
-    addr_hit[ 2] = (reg_addr == PULSER_CFG_F1_2_OFFSET);
-    addr_hit[ 3] = (reg_addr == PULSER_CFG_F1_3_OFFSET);
-    addr_hit[ 4] = (reg_addr == PULSER_CFG_F2_0_OFFSET);
-    addr_hit[ 5] = (reg_addr == PULSER_CFG_F2_1_OFFSET);
-    addr_hit[ 6] = (reg_addr == PULSER_CFG_F2_2_OFFSET);
-    addr_hit[ 7] = (reg_addr == PULSER_CFG_F2_3_OFFSET);
-    addr_hit[ 8] = (reg_addr == PULSER_CFG_CNT_0_OFFSET);
-    addr_hit[ 9] = (reg_addr == PULSER_CFG_CNT_1_OFFSET);
-    addr_hit[10] = (reg_addr == PULSER_CFG_CNT_2_OFFSET);
-    addr_hit[11] = (reg_addr == PULSER_CFG_CNT_3_OFFSET);
-    addr_hit[12] = (reg_addr == PULSER_STATUS_0_OFFSET);
-    addr_hit[13] = (reg_addr == PULSER_STATUS_1_OFFSET);
-    addr_hit[14] = (reg_addr == PULSER_STATUS_2_OFFSET);
-    addr_hit[15] = (reg_addr == PULSER_STATUS_3_OFFSET);
-    addr_hit[16] = (reg_addr == PULSER_CTRL_OUT_0_OFFSET);
-    addr_hit[17] = (reg_addr == PULSER_CTRL_OUT_1_OFFSET);
-    addr_hit[18] = (reg_addr == PULSER_CTRL_OUT_2_OFFSET);
-    addr_hit[19] = (reg_addr == PULSER_CTRL_OUT_3_OFFSET);
-    addr_hit[20] = (reg_addr == PULSER_CTRL_0_OFFSET);
-    addr_hit[21] = (reg_addr == PULSER_CTRL_1_OFFSET);
-    addr_hit[22] = (reg_addr == PULSER_CTRL_2_OFFSET);
-    addr_hit[23] = (reg_addr == PULSER_CTRL_3_OFFSET);
+    addr_hit[ 0] = (reg_addr == PULSER_CFG_F1_END_0_OFFSET);
+    addr_hit[ 1] = (reg_addr == PULSER_CFG_F1_END_1_OFFSET);
+    addr_hit[ 2] = (reg_addr == PULSER_CFG_F1_SWITCH_0_OFFSET);
+    addr_hit[ 3] = (reg_addr == PULSER_CFG_F1_SWITCH_1_OFFSET);
+    addr_hit[ 4] = (reg_addr == PULSER_CFG_F2_END_0_OFFSET);
+    addr_hit[ 5] = (reg_addr == PULSER_CFG_F2_END_1_OFFSET);
+    addr_hit[ 6] = (reg_addr == PULSER_CFG_F2_SWITCH_0_OFFSET);
+    addr_hit[ 7] = (reg_addr == PULSER_CFG_F2_SWITCH_1_OFFSET);
+    addr_hit[ 8] = (reg_addr == PULSER_CFG_CNT_F1_OFFSET);
+    addr_hit[ 9] = (reg_addr == PULSER_CFG_CNT_F2_OFFSET);
+    addr_hit[10] = (reg_addr == PULSER_CFG_CNT_STOP_OFFSET);
+    addr_hit[11] = (reg_addr == PULSER_READY_OFFSET);
+    addr_hit[12] = (reg_addr == PULSER_STATE_OFFSET);
+    addr_hit[13] = (reg_addr == PULSER_CTRL_INV_OUT_OFFSET);
+    addr_hit[14] = (reg_addr == PULSER_CTRL_IDLE_OUT_OFFSET);
+    addr_hit[15] = (reg_addr == PULSER_CTRL_START_OFFSET);
+    addr_hit[16] = (reg_addr == PULSER_CTRL_STOP_OFFSET);
   end
 
   assign addrmiss = (reg_re || reg_we) ? ~|addr_hit : 1'b0 ;
@@ -1594,274 +1580,246 @@ module pulser_reg_top #(
                (addr_hit[13] & (|(PULSER_PERMIT[13] & ~reg_be))) |
                (addr_hit[14] & (|(PULSER_PERMIT[14] & ~reg_be))) |
                (addr_hit[15] & (|(PULSER_PERMIT[15] & ~reg_be))) |
-               (addr_hit[16] & (|(PULSER_PERMIT[16] & ~reg_be))) |
-               (addr_hit[17] & (|(PULSER_PERMIT[17] & ~reg_be))) |
-               (addr_hit[18] & (|(PULSER_PERMIT[18] & ~reg_be))) |
-               (addr_hit[19] & (|(PULSER_PERMIT[19] & ~reg_be))) |
-               (addr_hit[20] & (|(PULSER_PERMIT[20] & ~reg_be))) |
-               (addr_hit[21] & (|(PULSER_PERMIT[21] & ~reg_be))) |
-               (addr_hit[22] & (|(PULSER_PERMIT[22] & ~reg_be))) |
-               (addr_hit[23] & (|(PULSER_PERMIT[23] & ~reg_be)))));
+               (addr_hit[16] & (|(PULSER_PERMIT[16] & ~reg_be)))));
   end
 
-  assign cfg_f1_0_switchval_0_we = addr_hit[0] & reg_we & !reg_error;
-  assign cfg_f1_0_switchval_0_wd = reg_wdata[15:0];
+  assign cfg_f1_end_0_endval_0_we = addr_hit[0] & reg_we & !reg_error;
+  assign cfg_f1_end_0_endval_0_wd = reg_wdata[15:0];
 
-  assign cfg_f1_0_endval_0_we = addr_hit[0] & reg_we & !reg_error;
-  assign cfg_f1_0_endval_0_wd = reg_wdata[31:16];
+  assign cfg_f1_end_0_endval_1_we = addr_hit[0] & reg_we & !reg_error;
+  assign cfg_f1_end_0_endval_1_wd = reg_wdata[31:16];
 
-  assign cfg_f1_1_switchval_1_we = addr_hit[1] & reg_we & !reg_error;
-  assign cfg_f1_1_switchval_1_wd = reg_wdata[15:0];
+  assign cfg_f1_end_1_endval_2_we = addr_hit[1] & reg_we & !reg_error;
+  assign cfg_f1_end_1_endval_2_wd = reg_wdata[15:0];
 
-  assign cfg_f1_1_endval_1_we = addr_hit[1] & reg_we & !reg_error;
-  assign cfg_f1_1_endval_1_wd = reg_wdata[31:16];
+  assign cfg_f1_end_1_endval_3_we = addr_hit[1] & reg_we & !reg_error;
+  assign cfg_f1_end_1_endval_3_wd = reg_wdata[31:16];
 
-  assign cfg_f1_2_switchval_2_we = addr_hit[2] & reg_we & !reg_error;
-  assign cfg_f1_2_switchval_2_wd = reg_wdata[15:0];
+  assign cfg_f1_switch_0_switchval_0_we = addr_hit[2] & reg_we & !reg_error;
+  assign cfg_f1_switch_0_switchval_0_wd = reg_wdata[15:0];
 
-  assign cfg_f1_2_endval_2_we = addr_hit[2] & reg_we & !reg_error;
-  assign cfg_f1_2_endval_2_wd = reg_wdata[31:16];
+  assign cfg_f1_switch_0_switchval_1_we = addr_hit[2] & reg_we & !reg_error;
+  assign cfg_f1_switch_0_switchval_1_wd = reg_wdata[31:16];
 
-  assign cfg_f1_3_switchval_3_we = addr_hit[3] & reg_we & !reg_error;
-  assign cfg_f1_3_switchval_3_wd = reg_wdata[15:0];
+  assign cfg_f1_switch_1_switchval_2_we = addr_hit[3] & reg_we & !reg_error;
+  assign cfg_f1_switch_1_switchval_2_wd = reg_wdata[15:0];
 
-  assign cfg_f1_3_endval_3_we = addr_hit[3] & reg_we & !reg_error;
-  assign cfg_f1_3_endval_3_wd = reg_wdata[31:16];
+  assign cfg_f1_switch_1_switchval_3_we = addr_hit[3] & reg_we & !reg_error;
+  assign cfg_f1_switch_1_switchval_3_wd = reg_wdata[31:16];
 
-  assign cfg_f2_0_switchval_0_we = addr_hit[4] & reg_we & !reg_error;
-  assign cfg_f2_0_switchval_0_wd = reg_wdata[15:0];
+  assign cfg_f2_end_0_endval_0_we = addr_hit[4] & reg_we & !reg_error;
+  assign cfg_f2_end_0_endval_0_wd = reg_wdata[15:0];
 
-  assign cfg_f2_0_endval_0_we = addr_hit[4] & reg_we & !reg_error;
-  assign cfg_f2_0_endval_0_wd = reg_wdata[31:16];
+  assign cfg_f2_end_0_endval_1_we = addr_hit[4] & reg_we & !reg_error;
+  assign cfg_f2_end_0_endval_1_wd = reg_wdata[31:16];
 
-  assign cfg_f2_1_switchval_1_we = addr_hit[5] & reg_we & !reg_error;
-  assign cfg_f2_1_switchval_1_wd = reg_wdata[15:0];
+  assign cfg_f2_end_1_endval_2_we = addr_hit[5] & reg_we & !reg_error;
+  assign cfg_f2_end_1_endval_2_wd = reg_wdata[15:0];
 
-  assign cfg_f2_1_endval_1_we = addr_hit[5] & reg_we & !reg_error;
-  assign cfg_f2_1_endval_1_wd = reg_wdata[31:16];
+  assign cfg_f2_end_1_endval_3_we = addr_hit[5] & reg_we & !reg_error;
+  assign cfg_f2_end_1_endval_3_wd = reg_wdata[31:16];
 
-  assign cfg_f2_2_switchval_2_we = addr_hit[6] & reg_we & !reg_error;
-  assign cfg_f2_2_switchval_2_wd = reg_wdata[15:0];
+  assign cfg_f2_switch_0_switchval_0_we = addr_hit[6] & reg_we & !reg_error;
+  assign cfg_f2_switch_0_switchval_0_wd = reg_wdata[15:0];
 
-  assign cfg_f2_2_endval_2_we = addr_hit[6] & reg_we & !reg_error;
-  assign cfg_f2_2_endval_2_wd = reg_wdata[31:16];
+  assign cfg_f2_switch_0_switchval_1_we = addr_hit[6] & reg_we & !reg_error;
+  assign cfg_f2_switch_0_switchval_1_wd = reg_wdata[31:16];
 
-  assign cfg_f2_3_switchval_3_we = addr_hit[7] & reg_we & !reg_error;
-  assign cfg_f2_3_switchval_3_wd = reg_wdata[15:0];
+  assign cfg_f2_switch_1_switchval_2_we = addr_hit[7] & reg_we & !reg_error;
+  assign cfg_f2_switch_1_switchval_2_wd = reg_wdata[15:0];
 
-  assign cfg_f2_3_endval_3_we = addr_hit[7] & reg_we & !reg_error;
-  assign cfg_f2_3_endval_3_wd = reg_wdata[31:16];
+  assign cfg_f2_switch_1_switchval_3_we = addr_hit[7] & reg_we & !reg_error;
+  assign cfg_f2_switch_1_switchval_3_wd = reg_wdata[31:16];
 
-  assign cfg_cnt_0_f1_0_we = addr_hit[8] & reg_we & !reg_error;
-  assign cfg_cnt_0_f1_0_wd = reg_wdata[7:0];
+  assign cfg_cnt_f1_f1_0_we = addr_hit[8] & reg_we & !reg_error;
+  assign cfg_cnt_f1_f1_0_wd = reg_wdata[7:0];
 
-  assign cfg_cnt_0_f2_0_we = addr_hit[8] & reg_we & !reg_error;
-  assign cfg_cnt_0_f2_0_wd = reg_wdata[15:8];
+  assign cfg_cnt_f1_f1_1_we = addr_hit[8] & reg_we & !reg_error;
+  assign cfg_cnt_f1_f1_1_wd = reg_wdata[15:8];
 
-  assign cfg_cnt_0_count_stop_0_we = addr_hit[8] & reg_we & !reg_error;
-  assign cfg_cnt_0_count_stop_0_wd = reg_wdata[23:16];
+  assign cfg_cnt_f1_f1_2_we = addr_hit[8] & reg_we & !reg_error;
+  assign cfg_cnt_f1_f1_2_wd = reg_wdata[23:16];
 
-  assign cfg_cnt_1_f1_1_we = addr_hit[9] & reg_we & !reg_error;
-  assign cfg_cnt_1_f1_1_wd = reg_wdata[7:0];
+  assign cfg_cnt_f1_f1_3_we = addr_hit[8] & reg_we & !reg_error;
+  assign cfg_cnt_f1_f1_3_wd = reg_wdata[31:24];
 
-  assign cfg_cnt_1_f2_1_we = addr_hit[9] & reg_we & !reg_error;
-  assign cfg_cnt_1_f2_1_wd = reg_wdata[15:8];
+  assign cfg_cnt_f2_f2_0_we = addr_hit[9] & reg_we & !reg_error;
+  assign cfg_cnt_f2_f2_0_wd = reg_wdata[7:0];
 
-  assign cfg_cnt_1_count_stop_1_we = addr_hit[9] & reg_we & !reg_error;
-  assign cfg_cnt_1_count_stop_1_wd = reg_wdata[23:16];
+  assign cfg_cnt_f2_f2_1_we = addr_hit[9] & reg_we & !reg_error;
+  assign cfg_cnt_f2_f2_1_wd = reg_wdata[15:8];
 
-  assign cfg_cnt_2_f1_2_we = addr_hit[10] & reg_we & !reg_error;
-  assign cfg_cnt_2_f1_2_wd = reg_wdata[7:0];
+  assign cfg_cnt_f2_f2_2_we = addr_hit[9] & reg_we & !reg_error;
+  assign cfg_cnt_f2_f2_2_wd = reg_wdata[23:16];
 
-  assign cfg_cnt_2_f2_2_we = addr_hit[10] & reg_we & !reg_error;
-  assign cfg_cnt_2_f2_2_wd = reg_wdata[15:8];
+  assign cfg_cnt_f2_f2_3_we = addr_hit[9] & reg_we & !reg_error;
+  assign cfg_cnt_f2_f2_3_wd = reg_wdata[31:24];
 
-  assign cfg_cnt_2_count_stop_2_we = addr_hit[10] & reg_we & !reg_error;
-  assign cfg_cnt_2_count_stop_2_wd = reg_wdata[23:16];
+  assign cfg_cnt_stop_count_stop_0_we = addr_hit[10] & reg_we & !reg_error;
+  assign cfg_cnt_stop_count_stop_0_wd = reg_wdata[7:0];
 
-  assign cfg_cnt_3_f1_3_we = addr_hit[11] & reg_we & !reg_error;
-  assign cfg_cnt_3_f1_3_wd = reg_wdata[7:0];
+  assign cfg_cnt_stop_count_stop_1_we = addr_hit[10] & reg_we & !reg_error;
+  assign cfg_cnt_stop_count_stop_1_wd = reg_wdata[15:8];
 
-  assign cfg_cnt_3_f2_3_we = addr_hit[11] & reg_we & !reg_error;
-  assign cfg_cnt_3_f2_3_wd = reg_wdata[15:8];
+  assign cfg_cnt_stop_count_stop_2_we = addr_hit[10] & reg_we & !reg_error;
+  assign cfg_cnt_stop_count_stop_2_wd = reg_wdata[23:16];
 
-  assign cfg_cnt_3_count_stop_3_we = addr_hit[11] & reg_we & !reg_error;
-  assign cfg_cnt_3_count_stop_3_wd = reg_wdata[23:16];
+  assign cfg_cnt_stop_count_stop_3_we = addr_hit[10] & reg_we & !reg_error;
+  assign cfg_cnt_stop_count_stop_3_wd = reg_wdata[31:24];
 
-  assign ctrl_out_0_invert_out_0_we = addr_hit[16] & reg_we & !reg_error;
-  assign ctrl_out_0_invert_out_0_wd = reg_wdata[0];
+  assign ctrl_inv_out_invert_out_0_we = addr_hit[13] & reg_we & !reg_error;
+  assign ctrl_inv_out_invert_out_0_wd = reg_wdata[0];
 
-  assign ctrl_out_0_idle_out_0_we = addr_hit[16] & reg_we & !reg_error;
-  assign ctrl_out_0_idle_out_0_wd = reg_wdata[1];
+  assign ctrl_inv_out_invert_out_1_we = addr_hit[13] & reg_we & !reg_error;
+  assign ctrl_inv_out_invert_out_1_wd = reg_wdata[1];
 
-  assign ctrl_out_1_invert_out_1_we = addr_hit[17] & reg_we & !reg_error;
-  assign ctrl_out_1_invert_out_1_wd = reg_wdata[0];
+  assign ctrl_inv_out_invert_out_2_we = addr_hit[13] & reg_we & !reg_error;
+  assign ctrl_inv_out_invert_out_2_wd = reg_wdata[2];
 
-  assign ctrl_out_1_idle_out_1_we = addr_hit[17] & reg_we & !reg_error;
-  assign ctrl_out_1_idle_out_1_wd = reg_wdata[1];
+  assign ctrl_inv_out_invert_out_3_we = addr_hit[13] & reg_we & !reg_error;
+  assign ctrl_inv_out_invert_out_3_wd = reg_wdata[3];
 
-  assign ctrl_out_2_invert_out_2_we = addr_hit[18] & reg_we & !reg_error;
-  assign ctrl_out_2_invert_out_2_wd = reg_wdata[0];
+  assign ctrl_idle_out_idle_out_0_we = addr_hit[14] & reg_we & !reg_error;
+  assign ctrl_idle_out_idle_out_0_wd = reg_wdata[1];
 
-  assign ctrl_out_2_idle_out_2_we = addr_hit[18] & reg_we & !reg_error;
-  assign ctrl_out_2_idle_out_2_wd = reg_wdata[1];
+  assign ctrl_idle_out_idle_out_1_we = addr_hit[14] & reg_we & !reg_error;
+  assign ctrl_idle_out_idle_out_1_wd = reg_wdata[3];
 
-  assign ctrl_out_3_invert_out_3_we = addr_hit[19] & reg_we & !reg_error;
-  assign ctrl_out_3_invert_out_3_wd = reg_wdata[0];
+  assign ctrl_idle_out_idle_out_2_we = addr_hit[14] & reg_we & !reg_error;
+  assign ctrl_idle_out_idle_out_2_wd = reg_wdata[5];
 
-  assign ctrl_out_3_idle_out_3_we = addr_hit[19] & reg_we & !reg_error;
-  assign ctrl_out_3_idle_out_3_wd = reg_wdata[1];
+  assign ctrl_idle_out_idle_out_3_we = addr_hit[14] & reg_we & !reg_error;
+  assign ctrl_idle_out_idle_out_3_wd = reg_wdata[7];
 
-  assign ctrl_0_start_0_we = addr_hit[20] & reg_we & !reg_error;
-  assign ctrl_0_start_0_wd = reg_wdata[0];
+  assign ctrl_start_start_0_we = addr_hit[15] & reg_we & !reg_error;
+  assign ctrl_start_start_0_wd = reg_wdata[0];
 
-  assign ctrl_0_stop_0_we = addr_hit[20] & reg_we & !reg_error;
-  assign ctrl_0_stop_0_wd = reg_wdata[1];
+  assign ctrl_start_start_1_we = addr_hit[15] & reg_we & !reg_error;
+  assign ctrl_start_start_1_wd = reg_wdata[1];
 
-  assign ctrl_1_start_1_we = addr_hit[21] & reg_we & !reg_error;
-  assign ctrl_1_start_1_wd = reg_wdata[0];
+  assign ctrl_start_start_2_we = addr_hit[15] & reg_we & !reg_error;
+  assign ctrl_start_start_2_wd = reg_wdata[2];
 
-  assign ctrl_1_stop_1_we = addr_hit[21] & reg_we & !reg_error;
-  assign ctrl_1_stop_1_wd = reg_wdata[1];
+  assign ctrl_start_start_3_we = addr_hit[15] & reg_we & !reg_error;
+  assign ctrl_start_start_3_wd = reg_wdata[3];
 
-  assign ctrl_2_start_2_we = addr_hit[22] & reg_we & !reg_error;
-  assign ctrl_2_start_2_wd = reg_wdata[0];
+  assign ctrl_stop_stop_0_we = addr_hit[16] & reg_we & !reg_error;
+  assign ctrl_stop_stop_0_wd = reg_wdata[1];
 
-  assign ctrl_2_stop_2_we = addr_hit[22] & reg_we & !reg_error;
-  assign ctrl_2_stop_2_wd = reg_wdata[1];
+  assign ctrl_stop_stop_1_we = addr_hit[16] & reg_we & !reg_error;
+  assign ctrl_stop_stop_1_wd = reg_wdata[3];
 
-  assign ctrl_3_start_3_we = addr_hit[23] & reg_we & !reg_error;
-  assign ctrl_3_start_3_wd = reg_wdata[0];
+  assign ctrl_stop_stop_2_we = addr_hit[16] & reg_we & !reg_error;
+  assign ctrl_stop_stop_2_wd = reg_wdata[5];
 
-  assign ctrl_3_stop_3_we = addr_hit[23] & reg_we & !reg_error;
-  assign ctrl_3_stop_3_wd = reg_wdata[1];
+  assign ctrl_stop_stop_3_we = addr_hit[16] & reg_we & !reg_error;
+  assign ctrl_stop_stop_3_wd = reg_wdata[7];
 
   // Read data return
   always_comb begin
     reg_rdata_next = '0;
     unique case (1'b1)
       addr_hit[0]: begin
-        reg_rdata_next[15:0] = cfg_f1_0_switchval_0_qs;
-        reg_rdata_next[31:16] = cfg_f1_0_endval_0_qs;
+        reg_rdata_next[15:0] = cfg_f1_end_0_endval_0_qs;
+        reg_rdata_next[31:16] = cfg_f1_end_0_endval_1_qs;
       end
 
       addr_hit[1]: begin
-        reg_rdata_next[15:0] = cfg_f1_1_switchval_1_qs;
-        reg_rdata_next[31:16] = cfg_f1_1_endval_1_qs;
+        reg_rdata_next[15:0] = cfg_f1_end_1_endval_2_qs;
+        reg_rdata_next[31:16] = cfg_f1_end_1_endval_3_qs;
       end
 
       addr_hit[2]: begin
-        reg_rdata_next[15:0] = cfg_f1_2_switchval_2_qs;
-        reg_rdata_next[31:16] = cfg_f1_2_endval_2_qs;
+        reg_rdata_next[15:0] = cfg_f1_switch_0_switchval_0_qs;
+        reg_rdata_next[31:16] = cfg_f1_switch_0_switchval_1_qs;
       end
 
       addr_hit[3]: begin
-        reg_rdata_next[15:0] = cfg_f1_3_switchval_3_qs;
-        reg_rdata_next[31:16] = cfg_f1_3_endval_3_qs;
+        reg_rdata_next[15:0] = cfg_f1_switch_1_switchval_2_qs;
+        reg_rdata_next[31:16] = cfg_f1_switch_1_switchval_3_qs;
       end
 
       addr_hit[4]: begin
-        reg_rdata_next[15:0] = cfg_f2_0_switchval_0_qs;
-        reg_rdata_next[31:16] = cfg_f2_0_endval_0_qs;
+        reg_rdata_next[15:0] = cfg_f2_end_0_endval_0_qs;
+        reg_rdata_next[31:16] = cfg_f2_end_0_endval_1_qs;
       end
 
       addr_hit[5]: begin
-        reg_rdata_next[15:0] = cfg_f2_1_switchval_1_qs;
-        reg_rdata_next[31:16] = cfg_f2_1_endval_1_qs;
+        reg_rdata_next[15:0] = cfg_f2_end_1_endval_2_qs;
+        reg_rdata_next[31:16] = cfg_f2_end_1_endval_3_qs;
       end
 
       addr_hit[6]: begin
-        reg_rdata_next[15:0] = cfg_f2_2_switchval_2_qs;
-        reg_rdata_next[31:16] = cfg_f2_2_endval_2_qs;
+        reg_rdata_next[15:0] = cfg_f2_switch_0_switchval_0_qs;
+        reg_rdata_next[31:16] = cfg_f2_switch_0_switchval_1_qs;
       end
 
       addr_hit[7]: begin
-        reg_rdata_next[15:0] = cfg_f2_3_switchval_3_qs;
-        reg_rdata_next[31:16] = cfg_f2_3_endval_3_qs;
+        reg_rdata_next[15:0] = cfg_f2_switch_1_switchval_2_qs;
+        reg_rdata_next[31:16] = cfg_f2_switch_1_switchval_3_qs;
       end
 
       addr_hit[8]: begin
-        reg_rdata_next[7:0] = cfg_cnt_0_f1_0_qs;
-        reg_rdata_next[15:8] = cfg_cnt_0_f2_0_qs;
-        reg_rdata_next[23:16] = cfg_cnt_0_count_stop_0_qs;
+        reg_rdata_next[7:0] = cfg_cnt_f1_f1_0_qs;
+        reg_rdata_next[15:8] = cfg_cnt_f1_f1_1_qs;
+        reg_rdata_next[23:16] = cfg_cnt_f1_f1_2_qs;
+        reg_rdata_next[31:24] = cfg_cnt_f1_f1_3_qs;
       end
 
       addr_hit[9]: begin
-        reg_rdata_next[7:0] = cfg_cnt_1_f1_1_qs;
-        reg_rdata_next[15:8] = cfg_cnt_1_f2_1_qs;
-        reg_rdata_next[23:16] = cfg_cnt_1_count_stop_1_qs;
+        reg_rdata_next[7:0] = cfg_cnt_f2_f2_0_qs;
+        reg_rdata_next[15:8] = cfg_cnt_f2_f2_1_qs;
+        reg_rdata_next[23:16] = cfg_cnt_f2_f2_2_qs;
+        reg_rdata_next[31:24] = cfg_cnt_f2_f2_3_qs;
       end
 
       addr_hit[10]: begin
-        reg_rdata_next[7:0] = cfg_cnt_2_f1_2_qs;
-        reg_rdata_next[15:8] = cfg_cnt_2_f2_2_qs;
-        reg_rdata_next[23:16] = cfg_cnt_2_count_stop_2_qs;
+        reg_rdata_next[7:0] = cfg_cnt_stop_count_stop_0_qs;
+        reg_rdata_next[15:8] = cfg_cnt_stop_count_stop_1_qs;
+        reg_rdata_next[23:16] = cfg_cnt_stop_count_stop_2_qs;
+        reg_rdata_next[31:24] = cfg_cnt_stop_count_stop_3_qs;
       end
 
       addr_hit[11]: begin
-        reg_rdata_next[7:0] = cfg_cnt_3_f1_3_qs;
-        reg_rdata_next[15:8] = cfg_cnt_3_f2_3_qs;
-        reg_rdata_next[23:16] = cfg_cnt_3_count_stop_3_qs;
+        reg_rdata_next[0] = ready_ready_0_qs;
+        reg_rdata_next[1] = ready_ready_1_qs;
+        reg_rdata_next[2] = ready_ready_2_qs;
+        reg_rdata_next[3] = ready_ready_3_qs;
       end
 
       addr_hit[12]: begin
-        reg_rdata_next[0] = status_0_ready_0_qs;
-        reg_rdata_next[3:1] = status_0_state_0_qs;
+        reg_rdata_next[2:0] = state_state_0_qs;
+        reg_rdata_next[5:3] = state_state_1_qs;
+        reg_rdata_next[8:6] = state_state_2_qs;
+        reg_rdata_next[11:9] = state_state_3_qs;
       end
 
       addr_hit[13]: begin
-        reg_rdata_next[0] = status_1_ready_1_qs;
-        reg_rdata_next[3:1] = status_1_state_1_qs;
+        reg_rdata_next[0] = ctrl_inv_out_invert_out_0_qs;
+        reg_rdata_next[1] = ctrl_inv_out_invert_out_1_qs;
+        reg_rdata_next[2] = ctrl_inv_out_invert_out_2_qs;
+        reg_rdata_next[3] = ctrl_inv_out_invert_out_3_qs;
       end
 
       addr_hit[14]: begin
-        reg_rdata_next[0] = status_2_ready_2_qs;
-        reg_rdata_next[3:1] = status_2_state_2_qs;
+        reg_rdata_next[1] = ctrl_idle_out_idle_out_0_qs;
+        reg_rdata_next[3] = ctrl_idle_out_idle_out_1_qs;
+        reg_rdata_next[5] = ctrl_idle_out_idle_out_2_qs;
+        reg_rdata_next[7] = ctrl_idle_out_idle_out_3_qs;
       end
 
       addr_hit[15]: begin
-        reg_rdata_next[0] = status_3_ready_3_qs;
-        reg_rdata_next[3:1] = status_3_state_3_qs;
+        reg_rdata_next[0] = '0;
+        reg_rdata_next[1] = '0;
+        reg_rdata_next[2] = '0;
+        reg_rdata_next[3] = '0;
       end
 
       addr_hit[16]: begin
-        reg_rdata_next[0] = ctrl_out_0_invert_out_0_qs;
-        reg_rdata_next[1] = ctrl_out_0_idle_out_0_qs;
-      end
-
-      addr_hit[17]: begin
-        reg_rdata_next[0] = ctrl_out_1_invert_out_1_qs;
-        reg_rdata_next[1] = ctrl_out_1_idle_out_1_qs;
-      end
-
-      addr_hit[18]: begin
-        reg_rdata_next[0] = ctrl_out_2_invert_out_2_qs;
-        reg_rdata_next[1] = ctrl_out_2_idle_out_2_qs;
-      end
-
-      addr_hit[19]: begin
-        reg_rdata_next[0] = ctrl_out_3_invert_out_3_qs;
-        reg_rdata_next[1] = ctrl_out_3_idle_out_3_qs;
-      end
-
-      addr_hit[20]: begin
-        reg_rdata_next[0] = '0;
         reg_rdata_next[1] = '0;
-      end
-
-      addr_hit[21]: begin
-        reg_rdata_next[0] = '0;
-        reg_rdata_next[1] = '0;
-      end
-
-      addr_hit[22]: begin
-        reg_rdata_next[0] = '0;
-        reg_rdata_next[1] = '0;
-      end
-
-      addr_hit[23]: begin
-        reg_rdata_next[0] = '0;
-        reg_rdata_next[1] = '0;
+        reg_rdata_next[3] = '0;
+        reg_rdata_next[5] = '0;
+        reg_rdata_next[7] = '0;
       end
 
       default: begin
