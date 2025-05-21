@@ -3,8 +3,8 @@
 // Author      : Nico Canzani <ncanzani@student.ethz.ch>
 // Description : Top-Level Wrapper for multiple Pulse Generators
 //
-// This module integrates multiple instances of the `pulser_core` module and exposes a unified
-// register interface over the OBI (Open Bus Interface) protocol.
+// This module integrates multiple instances of the `pulser_core` module and exposes unified
+// register interfaces over the OBI (Open Bus Interface) protocol.
 //
 // Key Features:
 //   - Parameterizable number of pulser instances (`N_PULSER_INST`)
@@ -13,13 +13,12 @@
 //   - Synchronous OBI protocol handshake handling (req, gnt, rvalid, etc.)
 //   - Centralized command register for starting/stopping multiple pulsers simultaneously
 //
-// REGISTER MAP (per instance, offset by upper address bits):
-//   - 0x00 : CMD         → Start/Stop pulses (bit-encoded per instance)
-//   - 0x04 : F1_CFG      → {f1_end, f1_switch}
-//   - 0x08 : F2_CFG      → {f2_end, f2_switch}
-//   - 0x0C : COUNT_CFG   → {stop_count, f2_count, f1_count}
-//   - 0x10 : STATUS      → {ready, state}
-//   - 0x14 : OUT_CTRL    → {idle_out, invert_out}
+// REGISTER MAP (32 Bit, starting at LSB):
+//   - 0x00 : F1_CFG      : {f1_end, f1_switch}               16 + 16 Bit
+//   - 0x04 : F2_CFG      : {f2_end, f2_switch}               16 + 16 Bit
+//   - 0x08 : COUNT_CFG   : {stop_count, f2_count, f1_count}  8 + 8 + 8 Bit
+//   - 0x0c : STATUS      : {state, ready}                    3 + 1 Bit
+//   - 0x10 : OUT_CTRL    : {idle_out, invert_out}            1 + 1 Bit
 //
 // Each pulser is independently configurable and drives its own `pulse_o` output.
 // The wrapper tracks FSM states and readiness status from each instance,
@@ -67,6 +66,7 @@ module pulser #(
   logic                             valid_general_req;
 
   logic [N_PULSER_INST - 1:0][2:0]  state;
+  logic [N_PULSER_INST - 1:0]       ready;
   logic [N_PULSER_INST - 1:0]       start_pulse, stop_pulse;
 
   reg_req_t reg_req;
@@ -179,6 +179,17 @@ module pulser #(
     );
   end
 
+  //-----------------------------------------------------------------------------------------------
+  // READY signal: high when pulser is in IDLE or DONE state
+  //-----------------------------------------------------------------------------------------------
+  localparam IDLE_STATE = 3'd0;
+  localparam DONE_STATE = 3'd4;
+
+  always_comb begin
+    for (int i = 0; i < N_PULSER_INST; i++) begin
+      ready[i] = (state[i] == IDLE_STATE) || (state[i] == DONE_STATE);
+    end
+  end
 
   assign reg_req_general.addr   = reg_req.addr;
   assign reg_req_general.write  = reg_req.write;
