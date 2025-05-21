@@ -72,41 +72,49 @@
         ]
       }
     },
-    { 
-      name: "CFG_CNT",
-      desc: "Configure number of pulses for each phase",
-      swaccess: "rw",
-      hwaccess: "hro",
-      fields: [
-        { bits: "7:0",
-        name: "F1",
-        desc: "Number of f1 pulses" 
-        },
-        { bits: "15:8",
-        name: "F2",
-        desc: "Number of f2 pulses" 
-        },
-        { bits: "23:16",
-        name: "COUNT_STOP",
-        desc: "Number of stop pulses" 
-        },
-      ]
+    { multireg:
+      {
+        name: "CFG_CNT",
+        desc: "Configure number of pulses for each phase",
+        count: "NumPulsers"
+        cname: "CFG_CNT",
+        swaccess: "rw",
+        hwaccess: "hro",
+        fields: [
+          { bits: "7:0",
+          name: "F1",
+          desc: "Number of f1 pulses"
+          },
+          { bits: "15:8",
+          name: "F2",
+          desc: "Number of f2 pulses"
+          },
+          { bits: "23:16",
+          name: "COUNT_STOP",
+          desc: "Number of stop pulses"
+          },
+        ]
+      }
     },
-    {
-      name: "STATUS",
-      desc: "Read state of pulser",
-      swaccess: "ro",
-      hwaccess: "hwo",
-      fields: [
-        { bits: "0",
-        name: "READY",
-        desc: "High, if pulser is ready to start next pulsing phase"
-        },
-        { bits: "3:1",
-        name: "STATE",
-        desc: "Current state of the pulser: 0: Idle, 1: Running F1, 2: Running F2, 3: Running Stop pulse, 4: Done."
-        }
-      ]
+    { multireg:
+      {
+        name: "STATUS",
+        desc: "Read state of pulser",
+        count: "NumPulsers"
+        cname: "STATUS",
+        swaccess: "ro",
+        hwaccess: "hwo",
+        fields: [
+          { bits: "0",
+          name: "READY",
+          desc: "High, if pulser is ready to start next pulsing phase"
+          },
+          { bits: "3:1",
+          name: "STATE",
+          desc: "Current state of the pulser: 0: Idle, 1: Running F1, 2: Running F2, 3: Running Stop pulse, 4: Done."
+          }
+        ]
+      }
     },
     { multireg:
       {
@@ -128,23 +136,27 @@
         ]
       }
     },
-    {
-      name: "CTRL",
-      desc: "Start and Stop the pulser. No registers generated, commands handled in pulser.",
-      swaccess: "wo",
-      hwaccess: "hro",
-      hwext: "true",
-      hwqe: "true",
-      fields: [
-        { bits: "0",
-        name: "START",
-        desc: "Set one to start the pulser."
-        },
-        { bits: "1",
-        name: "STOP",
-        desc: "Set one to stop the pulser."
-        }
-      ]
+    { multireg:
+      {
+        name: "CTRL",
+        desc: "Start and Stop the pulser. No registers generated, commands handled in pulser.",
+        count: "NumPulsers"
+        cname: "CTRL",
+        swaccess: "wo",
+        hwaccess: "hro",
+        hwext: "true",
+        hwqe: "true",
+        fields: [
+          { bits: "0",
+          name: "START",
+          desc: "Set one to start the pulser."
+          },
+          { bits: "1",
+          name: "STOP",
+          desc: "Set one to stop the pulser."
+          }
+        ]
+      }
     }
   ]
 }
