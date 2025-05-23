@@ -4,7 +4,8 @@ package:
     - "Nico Canzani <ncanzani@student.ethz.ch>"
 
 dependencies:
-  common_cells: { git: "https://github.com/pulp-platform/common_cells.git",         version: 1.37.0 }
+  common_cells:         { git: "https://github.com/pulp-platform/common_cells.git",         version: 1.37.0 }
+  register_interface:   { git: "https://github.com/pulp-platform/register_interface.git",   version: 0.4.1 }
 
 sources:
   - files:
