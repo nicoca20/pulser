@@ -1,5 +1,6 @@
 import random
 import os
+import numpy as np
 
 output_dir = "golden_pulser"
 MIN_RESET_CYCLES = 3
@@ -8,7 +9,7 @@ START_DELAY_AFTER_RESET = 3
 FINAL_IDLE_CYCLES = 10
 
 # ---------------------------------------------------------------------
-# Golden Model for pulse_o calculation based on signal table
+# Golden Model for pulse_o calculation based on signal table (NumPy)
 # ---------------------------------------------------------------------
 def golden_model(signal_table):
     IDLE = "IDLE"
@@ -26,7 +27,8 @@ def golden_model(signal_table):
     prev_pulse = 0
     reset_active = True
 
-    for sig in signal_table:
+    for i in range(len(signal_table)):
+        sig = signal_table[i]
         pulse_o = sig["idle_out_i"]
 
         if sig["rst_ni"] == 0:
@@ -34,7 +36,7 @@ def golden_model(signal_table):
             pulse_cnt = 0
             clk_cnt = 0
             prev_pulse = sig["idle_out_i"]
-            sig["expected_pulse_o"] = prev_pulse
+            signal_table[i]["expected_pulse_o"] = prev_pulse
             reset_active = True
             continue
 
@@ -124,7 +126,7 @@ def golden_model(signal_table):
         else:
             pulse_o = sig["idle_out_i"]
 
-        sig["expected_pulse_o"] = prev_pulse
+        signal_table[i]["expected_pulse_o"] = prev_pulse
         prev_pulse = pulse_o
 
     return signal_table
@@ -163,10 +165,10 @@ def write_config(config, index):
 def write_stimuli(signal_table, index):
     os.makedirs(output_dir, exist_ok=True)
     with open(f"{output_dir}/stimuli_{index}.txt", "w") as f:
-        headers = list(signal_table[0].keys())
+        headers = signal_table.dtype.names
         f.write("# " + " ".join(headers) + "\n")
         for row in signal_table:
-            f.write(" ".join(str(row[k]) for k in headers) + "\n")
+            f.write(" ".join(str(row[h]) for h in headers) + "\n")
 
 # ---------------------------------------------------------------------
 # Build signal table and run golden model
@@ -180,26 +182,35 @@ def create_testcase(config, index):
         FINAL_IDLE_CYCLES
     )
 
-    signal_table = []
+    dtype = [
+        ("rst_ni", np.int32), ("start_i", np.int32), ("stop_i", np.int32),
+        ("f1_cnt_i", np.int32), ("f2_cnt_i", np.int32), ("stop_cnt_i", np.int32),
+        ("f1_end_i", np.int32), ("f1_switch_i", np.int32),
+        ("f2_end_i", np.int32), ("f2_switch_i", np.int32),
+        ("invert_out_i", np.int32), ("idle_out_i", np.int32),
+        ("expected_pulse_o", np.int32)
+    ]
+
+    signal_table = np.zeros(total_cycles, dtype=dtype)
+
     for t in range(total_cycles):
         rst_ni = 0 if t < MIN_RESET_CYCLES else 1
         start_i = 1 if t == MIN_RESET_CYCLES + START_DELAY_AFTER_RESET else 0
         use_cfg = t >= MIN_RESET_CYCLES + CONFIG_SETUP_DELAY
 
-        signal_table.append({
-            "rst_ni": rst_ni,
-            "start_i": start_i,
-            "stop_i": 0,
-            "f1_cnt_i": config["f1_cnt"] if use_cfg else 0,
-            "f2_cnt_i": config["f2_cnt"] if use_cfg else 0,
-            "stop_cnt_i": config["stop_cnt"] if use_cfg else 0,
-            "f1_end_i": config["f1_end"] if use_cfg else 0,
-            "f1_switch_i": config["f1_switch"] if use_cfg else 0,
-            "f2_end_i": config["f2_end"] if use_cfg else 0,
-            "f2_switch_i": config["f2_switch"] if use_cfg else 0,
-            "invert_out_i": config["invert"] if use_cfg else 0,
-            "idle_out_i": config["idle"] if use_cfg else 0
-        })
+        signal_table[t] = (
+            rst_ni, start_i, 0,
+            config["f1_cnt"] if use_cfg else 0,
+            config["f2_cnt"] if use_cfg else 0,
+            config["stop_cnt"] if use_cfg else 0,
+            config["f1_end"] if use_cfg else 0,
+            config["f1_switch"] if use_cfg else 0,
+            config["f2_end"] if use_cfg else 0,
+            config["f2_switch"] if use_cfg else 0,
+            config["invert"] if use_cfg else 0,
+            config["idle"] if use_cfg else 0,
+            0
+        )
 
     golden_model(signal_table)
     write_config(config, index)
