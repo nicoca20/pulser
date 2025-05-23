@@ -58,16 +58,18 @@ module pulser #(
   //-----------------------------------------------------------------------------------------------
   // Derived parameters
   //-----------------------------------------------------------------------------------------------
-  localparam int BLOCK_SEL_ADDR_WIDTH = (N_PULSER_INST < 2) ? 1 : $clog2(N_PULSER_INST + 1); // +1 to select general config register
+
+  // N_PULSER_INST + 1 to select general config register as well
+  localparam int BLOCK_SEL_ADDR_WIDTH = (N_PULSER_INST < 2) ? 1 : $clog2(N_PULSER_INST + 1);
   localparam int AW_CORE_REG = pulser_core_reg_pkg::BlockAw;
-  
+
+  //-----------------------------------------------------------------------------------------------
+  // Wires to demux the pulser obi requests internally
+  //-----------------------------------------------------------------------------------------------
+
   logic [BLOCK_SEL_ADDR_WIDTH-1:0]  block_sel;
   logic [N_PULSER_INST - 1:0]       valid_pulser_req;
   logic                             valid_general_req;
-
-  logic [N_PULSER_INST - 1:0][2:0]  state;
-  logic [N_PULSER_INST - 1:0]       ready;
-  logic [N_PULSER_INST - 1:0]       start_pulse, stop_pulse;
 
   reg_req_t reg_req;
   reg_rsp_t reg_rsp;
@@ -82,24 +84,17 @@ module pulser #(
   
   pulser_general_reg_pkg::pulser_general_reg2hw_t reg2hw_general;
 
-  assign block_sel = reg_req.addr[AW_CORE_REG + BLOCK_SEL_ADDR_WIDTH - 1 : AW_CORE_REG];
+  //-----------------------------------------------------------------------------------------------
+  // Wires to control / read states of each pulser.
+  //-----------------------------------------------------------------------------------------------
 
-  always_comb begin
-    valid_pulser_req = '0;
-    valid_general_req = 1'b0;
+  logic [N_PULSER_INST - 1:0][2:0]  state;
+  logic [N_PULSER_INST - 1:0]       ready;
+  logic [N_PULSER_INST - 1:0]       start_pulse, stop_pulse;
 
-    if (reg_req.valid == 1'b1) begin
-      if (block_sel == N_PULSER_INST) begin
-        valid_general_req = 1'b1;
-      end else begin
-        valid_pulser_req = (1 << block_sel);
-      end
-    end
-  end
-
-  assign reg_rsp =  (valid_general_req) ? reg_rsp_general :
-                    (block_sel < N_PULSER_INST && reg_req.valid) ? reg_rsp_mux[block_sel] :
-                    '0;
+  //-----------------------------------------------------------------------------------------------
+  // Periph to reg instantiation to connect OBI to the register files.
+  //-----------------------------------------------------------------------------------------------
 
   periph_to_reg #(
     .AW        ( ObiCfg.AddrWidth   ),
@@ -130,17 +125,30 @@ module pulser #(
   );
 
   //-----------------------------------------------------------------------------------------------
-  // Pulser and their register instantiations
+  // Pulser General Register instantiation.
+  // Currently only start / stop pulses from here.
   //-----------------------------------------------------------------------------------------------
 
-  for (genvar ii = 0; ii < N_PULSER_INST; ii++) begin : gen_pulsers
+  pulser_general_reg_top #(
+    .reg_req_t  ( reg_req_t   ),
+    .reg_rsp_t  ( reg_rsp_t   )
+  ) i_pulser_general_reg_top (
+    .clk_i      ( clk_i       ),
+    .rst_ni     ( rst_ni      ),
+    .reg_req_i  ( reg_req_general ),
+    .reg_rsp_o  ( reg_rsp_general     ),
+    // To HW
+    .reg2hw     ( reg2hw_general  ),
 
-    assign reg_req_mux[ii].addr   = reg_req.addr;
-    assign reg_req_mux[ii].write  = reg_req.write;
-    assign reg_req_mux[ii].wdata  = reg_req.wdata;
-    assign reg_req_mux[ii].wstrb  = reg_req.wstrb;
-    assign reg_req_mux[ii].valid  = valid_pulser_req[ii];
+    // Config: If 1, explicit error return for unmapped register access
+    .devmode_i  ( 1'b1 )
+  );
 
+  //-----------------------------------------------------------------------------------------------
+  // Pulser Register instantiations
+  //-----------------------------------------------------------------------------------------------
+
+  for (genvar ii = 0; ii < N_PULSER_INST; ii++) begin : gen_pulser_regs
     pulser_core_reg_top #(
       .reg_req_t  ( reg_req_t       ),
       .reg_rsp_t  ( reg_rsp_t       )
@@ -156,9 +164,13 @@ module pulser #(
       // Config: If 1, explicit error return for unmapped register access
       .devmode_i  ( 1'b1 )
     );
+  end
 
-    assign start_pulse[ii]        = reg2hw_general.ctrl.start.qe & reg2hw_general.ctrl.start.q[ii];
-    assign stop_pulse[ii]         = reg2hw_general.ctrl.stop.qe & reg2hw_general.ctrl.stop.q[ii];
+  //-----------------------------------------------------------------------------------------------
+  // Pulser instantiations
+  //-----------------------------------------------------------------------------------------------
+
+  for (genvar ii = 0; ii < N_PULSER_INST; ii++) begin : gen_pulser_cores
 
     pulser_core i_pulser_core (
       .clk_i          ( clk_i                             ),
@@ -175,21 +187,41 @@ module pulser #(
       .invert_out_i   ( reg2hw[ii].ctrl_out.invert_out.q  ),
       .idle_out_i     ( reg2hw[ii].ctrl_out.idle_out.q    ),
       .pulse_o        ( pulse_o[ii]                       ),
-      .state_o        ( state[ii]                         )
+      .state_o        ( state[ii]                          )
     );
   end
 
   //-----------------------------------------------------------------------------------------------
-  // READY signal: high when pulser is in IDLE or DONE state
+  // Pulser_core inputs and outputs
+  // Connect pulser_core signals not comming directly from reg2hw
   //-----------------------------------------------------------------------------------------------
-  localparam IDLE_STATE = 3'd0;
-  localparam DONE_STATE = 3'd4;
-
   always_comb begin
-    for (int i = 0; i < N_PULSER_INST; i++) begin
-      ready[i] = (state[i] == IDLE_STATE) || (state[i] == DONE_STATE);
+    for (int ii = 0; ii < N_PULSER_INST; ii++) begin
+      start_pulse[ii]           = reg2hw_general.ctrl.start.qe & reg2hw_general.ctrl.start.q[ii];
+      stop_pulse[ii]            = reg2hw_general.ctrl.stop.qe & reg2hw_general.ctrl.stop.q[ii];
+
+      hw2reg[ii].status.state.d = state[ii];
     end
   end
+
+  //-----------------------------------------------------------------------------------------------
+  // Request
+  // Connect reg request to the pulser registers but use individual valid signal per pulser
+  //-----------------------------------------------------------------------------------------------
+  always_comb begin
+    for (int ii = 0; ii < N_PULSER_INST; ii++) begin
+      reg_req_mux[ii].addr   = reg_req.addr;
+      reg_req_mux[ii].write  = reg_req.write;
+      reg_req_mux[ii].wdata  = reg_req.wdata;
+      reg_req_mux[ii].wstrb  = reg_req.wstrb;
+      reg_req_mux[ii].valid  = valid_pulser_req[ii];
+    end
+  end
+
+  //-----------------------------------------------------------------------------------------------
+  // Request
+  // Connect reg request to the general registers
+  //-----------------------------------------------------------------------------------------------
 
   assign reg_req_general.addr   = reg_req.addr;
   assign reg_req_general.write  = reg_req.write;
@@ -197,19 +229,49 @@ module pulser #(
   assign reg_req_general.wstrb  = reg_req.wstrb;
   assign reg_req_general.valid  = valid_general_req;
 
-  pulser_general_reg_top #(
-    .reg_req_t  ( reg_req_t   ),
-    .reg_rsp_t  ( reg_rsp_t   )
-  ) i_pulser_general_reg_top (
-    .clk_i      ( clk_i       ),
-    .rst_ni     ( rst_ni      ),
-    .reg_req_i  ( reg_req_general ),
-    .reg_rsp_o  ( reg_rsp_general     ),
-    // To HW
-    .reg2hw     ( reg2hw_general  ),
+  //-----------------------------------------------------------------------------------------------
+  //
+  // Generate individual valid signals
+  //
+  // Depends on chosen address
+  // 0 ... N_PULSER_INST-1:   pulser_core_reg_top of pulser 0... N-1
+  // N_PULSER_INST:           General config register
+  //
+  // The register address width is defined as: AW_CORE_REG = pulser_core_reg_pkg::BlockAw;
+  // Use the following bits to address the different regfiles.
+  // Done like this, that the different pulsers have one shared address space in the OBI defs.
+  //
+  // Important: Changing AW of the general register needs adjustments in the whole DEMUX!
+  //-----------------------------------------------------------------------------------------------
 
-    // Config: If 1, explicit error return for unmapped register access
-    .devmode_i  ( 1'b1 )
-  );
+  assign block_sel = reg_req.addr[AW_CORE_REG + BLOCK_SEL_ADDR_WIDTH - 1 : AW_CORE_REG];
+
+  assign valid_general_req =
+    (block_sel == N_PULSER_INST) ? reg_req.valid : 1'b0;
+
+  assign valid_pulser_req =
+    (block_sel < N_PULSER_INST) ? (reg_req.valid << block_sel) : '0;
+
+  //-----------------------------------------------------------------------------------------------
+  // Response
+  // Mux Response from general or pulser register depending on chosen address
+  //-----------------------------------------------------------------------------------------------
+
+  assign reg_rsp =
+    (block_sel == N_PULSER_INST) ? reg_rsp_general :
+    (block_sel < N_PULSER_INST)  ? reg_rsp_mux[block_sel] :
+                                   '0;
+
+  //-----------------------------------------------------------------------------------------------
+  // READY signal: high when pulser is in IDLE or DONE state
+  //-----------------------------------------------------------------------------------------------
+  localparam logic [2:0] STATE_IDLE = 3'd0;
+  localparam logic [2:0] STATE_DONE = 3'd4;
+
+  always_comb begin
+    for (int i = 0; i < N_PULSER_INST; i++) begin
+      ready[i] = (state[i] == STATE_IDLE) || (state[i] == STATE_DONE);
+    end
+  end
 
 endmodule
