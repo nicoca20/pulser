@@ -201,6 +201,7 @@ module pulser #(
       stop_pulse[ii]            = reg2hw_general.ctrl.stop.qe & reg2hw_general.ctrl.stop.q[ii];
 
       hw2reg[ii].status.state.d = state[ii];
+      hw2reg[ii].status.state.de = 1'b1; // Pass state to FF all the time
     end
   end
 
@@ -271,6 +272,8 @@ module pulser #(
   always_comb begin
     for (int i = 0; i < N_PULSER_INST; i++) begin
       ready[i] = (state[i] == STATE_IDLE) || (state[i] == STATE_DONE);
+      hw2reg[i].status.ready.d = ready[i];
+      hw2reg[i].status.ready.de = 1'b1; // Pass ready bit to FF all the time
     end
   end
 
