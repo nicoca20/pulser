@@ -2,7 +2,7 @@
 TB_DIR := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 RTL_DIR := $(TB_DIR)/../rtl
 OUTPUT_DIR := obj_dir
-TOP_MODULE := tb_pulser
+TOP_MODULE := tb_pulser_core
 TESTCONFIG ?= 0  # Default test config
 
 # Verilator
@@ -15,8 +15,8 @@ VERILATOR_ARGS += -I$(TB_DIR)/../../../../../rtl/common_cells/include
 
 # Source files
 VERILOG_SOURCES := \
-	$(RTL_DIR)/pulser.sv \
-	$(TB_DIR)/tb_pulser.sv \
+	$(RTL_DIR)/pulser_core.sv \
+	$(TB_DIR)/tb_pulser_core.sv \
 	$(TB_DIR)/../../../../../rtl/common_cells/counter.sv \
 	$(TB_DIR)/../../../../../rtl/common_cells/delta_counter.sv
 
@@ -43,7 +43,7 @@ run: $(OUTPUT_BIN)
 		exit 1; \
 	fi
 	@echo "Running testconfig $(TESTCONFIG)..."
-	oseda -2025.01 ./obj_dir/Vtb_pulser +testconfig=$(TESTCONFIG)
+	oseda -2025.01 ./obj_dir/Vtb_pulser_core +testconfig=$(TESTCONFIG)
 
 # Run all test configs sequentially
 run_all: $(OUTPUT_BIN)
@@ -58,6 +58,6 @@ run_all: $(OUTPUT_BIN)
 
 # Clean simulation output
 clean:
-	rm -rf obj_dir logs *.vcd golden_pulser
+	rm -rf obj_dir logs *.vcd golden_pulser_core
 
 .PHONY: compile all run run_all clean generate_simdata

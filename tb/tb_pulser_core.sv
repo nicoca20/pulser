@@ -1,6 +1,6 @@
 `timescale 1ns/1ps
 
-module tb_pulser;
+module tb_pulser_core;
 
   // Clock & Reset
   logic clk = 0;
@@ -26,7 +26,7 @@ module tb_pulser;
   int expected_pulse;
 
   // Instantiate DUT
-  pulser dut (
+  pulser_core dut (
     .clk_i(clk),
     .rst_ni(rst),
     .start_i(start),
@@ -111,7 +111,7 @@ module tb_pulser;
 
   initial begin
     $dumpfile("waveform.vcd");
-    $dumpvars(0, tb_pulser);
+    $dumpvars(0, tb_pulser_core);
   end
 
 endmodule

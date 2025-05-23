@@ -3,6 +3,10 @@ pulser:
     ./rtl,
   ]
   files: [
+    ./rtl/pulser_core_reg_pkg.sv,
+    ./rtl/pulser_core_reg_top.sv,
+    ./rtl/pulser_general_reg_pkg.sv,
+    ./rtl/pulser_general_reg_top.sv,
+    ./rtl/pulser_core.sv,
     ./rtl/pulser.sv,
-    ./rtl/pulser_wrapper.sv,
   ]
