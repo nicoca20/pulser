@@ -53,7 +53,7 @@ run_all: $(OUTPUT_BIN)
 			continue; \
 		fi; \
 		echo "Running testconfig $${i}..."; \
-		oseda -2025.01 ./obj_dir/Vtb_pulser +testconfig=$${i}; \
+		oseda -2025.01 ./obj_dir/Vtb_pulser_core +testconfig=$${i}; \
 	done
 
 # Clean simulation output

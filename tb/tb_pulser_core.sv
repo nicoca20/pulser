@@ -1,12 +1,14 @@
 `timescale 1ns/1ps
 
 module tb_pulser_core;
+  localparam ClkPeriod    = 10ns;
+  localparam ClkHigh      = ClkPeriod / 2;
 
   // Clock & Reset
   logic clk = 0;
   logic rst;
 
-  always #5 clk = ~clk;
+  always #ClkHigh clk = ~clk;
 
   // DUT inputs
   logic start, stop;
@@ -86,7 +88,7 @@ module tb_pulser_core;
         f2_switch = f2_switch_s[15:0];
         invert_out = invert_out_s[0];
         idle_out = idle_out_s[0];
-        expected_pulse = expected_pulse_s[0];
+        #1 expected_pulse = expected_pulse_s[0];
 
         // Read the expected pulse from the stimuli file
         // void'($fscanf(ref_fd, "%d\n", expected_pulse));

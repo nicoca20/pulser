@@ -54,6 +54,7 @@ def golden_model(signal_table):
                 phase = 3
             else:
                 phase = 4
+            signal_table[i]["expected_pulse_o"] = sig["idle_out_i"]
 
         # Handle pulsing
         else:
@@ -61,6 +62,7 @@ def golden_model(signal_table):
             if phase == 0:
                 cnt_clk = 0
                 cnt_pulse = 0
+                signal_table[i]["expected_pulse_o"] = sig["idle_out_i"]
             elif phase == 1:
                 if sig["invert_out_i"]:
                     signal_table[i]["expected_pulse_o"] = not (cnt_clk <= sig["f1_switch_i"])
