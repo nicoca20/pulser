@@ -249,33 +249,35 @@ module pulser_core (
   // Controls output signal based on current FSM state and polarity configuration
   //---------------------------------------------------------------------------------------------
   always_comb begin
-    pulse_o = idle_out_i;
+    pulse_o = 0;
 
-    case (state_q)
-      RUN_F1, RUN_F2: begin
-          if (invert_out_i == 1'b1) begin
-            pulse_o = ~(clk_count < current_switch);
-          end else begin
-            pulse_o = clk_count < current_switch;
-          end
-      end
-      RUN_STOP: begin
-        if (invert_out_i == 1'b1) begin
-          pulse_o = clk_count < current_switch;
-        end else begin
-          pulse_o = ~(clk_count < current_switch);
+    if (rst_ni) begin
+      case (state_q)
+        RUN_F1, RUN_F2: begin
+            if (invert_out_i == 1'b1) begin
+              pulse_o = ~(clk_count < current_switch);
+            end else begin
+              pulse_o = clk_count < current_switch;
+            end
         end
-      end
-      DONE: begin
-        pulse_o = idle_out_i;
-      end
-      IDLE: begin
-        pulse_o = idle_out_i;
-      end
-      default: begin
-        pulse_o = idle_out_i;
-      end
-    endcase
+        RUN_STOP: begin
+          if (invert_out_i == 1'b1) begin
+            pulse_o = clk_count < current_switch;
+          end else begin
+            pulse_o = ~(clk_count < current_switch);
+          end
+        end
+        DONE: begin
+          pulse_o = idle_out_i;
+        end
+        IDLE: begin
+          pulse_o = idle_out_i;
+        end
+        default: begin
+          pulse_o = idle_out_i;
+        end
+      endcase
+    end
   end
 
 endmodule
