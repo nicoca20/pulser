@@ -1,21 +1,18 @@
 # Pulser Core Testbench
 
-This directory contains the testbench setup for simulating the `pulser_core` SystemVerilog module using Verilator via the `oseda` simulation wrapper.
+This directory contains the testbench setup for simulating the `pulser_core` SystemVerilog module using Verilator with the `oseda` tools.
 
 ## Structure Overview
 
 - **Makefile** – Automates the full simulation flow: generating stimuli, compiling RTL, and running simulations.
 - **gen_pulser_golden.py** – Python script for generating configuration and stimuli files.
-- **golden_pulser/** – Contains generated stimuli and configuration files used for simulation.
-- **obj_dir/** – Verilator-generated build output, including the simulation binary.
 - **tb_pulser_core.sv** – SystemVerilog testbench module.
-- **waveform.vcd** – Simulation waveform output.
 
 ## Simulation Workflow
 
 ### Step 1: Build and Prepare Stimuli
 
-Run the full setup:
+Run the setup to generate all files:
 
 ```bash
 make
