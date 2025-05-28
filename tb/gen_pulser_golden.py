@@ -8,6 +8,9 @@ CONFIG_SETUP_DELAY = 1
 START_DELAY_AFTER_RESET = 3
 FINAL_IDLE_CYCLES = 10
 
+START_PULSE = [0, 35, 100]
+STOP_PULSE = [5, 60]
+
 # ---------------------------------------------------------------------
 # Golden Model for pulse_o calculation based on signal table (NumPy)
 # ---------------------------------------------------------------------
@@ -16,17 +19,12 @@ def golden_model(signal_table):
     cnt_clk = 0
     cnt_pulse = 0
     phase = 0
-    # running = False
 
     for i in range(len(signal_table)):
         sig = signal_table[i]
 
-        # if i > 0:
-        #     past_sig = signal_table[i-1]
-        # else:
-        #     past_sig = sig
-        #     if past_sig["start_i"] or past_sig["stop_i"]:
-        #         sys.exit("Error: Starting with a start or stop directly cannot be calculated with current golden model!")
+        # Handle Stop
+        reset_due_to_stop = sig["stop_i"]
 
         # Handle Reset
         if sig["rst_ni"] == 0:
@@ -34,15 +32,6 @@ def golden_model(signal_table):
             cnt_pulse = 0
             phase = 0
             signal_table[i]["expected_pulse_o"] = 0
-            # running = False
-
-        # Handle Stop
-        elif sig["stop_i"]:
-            cnt_clk = 0
-            cnt_pulse = 0
-            phase = 0
-            signal_table[i]["expected_pulse_o"] = sig["idle_out_i"]
-            # running = False
 
         # Handle start
         elif sig["start_i"] and phase == 0 and sig["rst_ni"] == 1:
@@ -121,6 +110,11 @@ def golden_model(signal_table):
                 cnt_pulse = 0
                 signal_table[i]["expected_pulse_o"] = sig["idle_out_i"]
 
+            if reset_due_to_stop == 1:
+                cnt_clk = 0
+                cnt_pulse = 0
+                phase = 0
+
     return signal_table
 
 # ---------------------------------------------------------------------
@@ -165,9 +159,9 @@ def write_stimuli(signal_table, index):
 # ---------------------------------------------------------------------
 # Build signal table and run golden model
 # ---------------------------------------------------------------------
-def create_testcase(config, index):
+def create_testcase(config, index, use_stop_cmd=False):
     total_cycles = (
-        MIN_RESET_CYCLES + START_DELAY_AFTER_RESET +
+        max(START_PULSE) + MIN_RESET_CYCLES + START_DELAY_AFTER_RESET +
         config["f1_cnt"] * config["f1_end"] +
         config["f2_cnt"] * config["f2_end"] +
         config["stop_cnt"] * (config["f2_end"] if config["f2_cnt"] > 0 else config["f1_end"]) +
@@ -186,12 +180,18 @@ def create_testcase(config, index):
     signal_table = np.zeros(total_cycles, dtype=dtype)
 
     for t in range(total_cycles):
+        start_times = [MIN_RESET_CYCLES + START_DELAY_AFTER_RESET + offset for offset in START_PULSE]
+        stop_times = [MIN_RESET_CYCLES + START_DELAY_AFTER_RESET + offset for offset in STOP_PULSE]
+
         rst_ni = 0 if t < MIN_RESET_CYCLES else 1
-        start_i = 1 if t == MIN_RESET_CYCLES + START_DELAY_AFTER_RESET else 0
+        start_i = 1 if t in start_times else 0
+        stop_i = 1 if (t in stop_times) and use_stop_cmd else 0
+
+
         use_cfg = t >= MIN_RESET_CYCLES + CONFIG_SETUP_DELAY
 
         signal_table[t] = (
-            rst_ni, start_i, 0,
+            rst_ni, start_i, stop_i,
             config["f1_cnt"] if use_cfg else 0,
             config["f2_cnt"] if use_cfg else 0,
             config["stop_cnt"] if use_cfg else 0,
@@ -209,28 +209,99 @@ def create_testcase(config, index):
     write_stimuli(signal_table, index)
     print(f"Test {index:02d} written with {len(signal_table)} cycles")
 
+def create_randomized_testcase(index):
+    total_cycles = random.randint(100, 500)
+    dtype = [
+        ("rst_ni", np.int32), ("start_i", np.int32), ("stop_i", np.int32),
+        ("f1_cnt_i", np.int32), ("f2_cnt_i", np.int32), ("stop_cnt_i", np.int32),
+        ("f1_end_i", np.int32), ("f1_switch_i", np.int32),
+        ("f2_end_i", np.int32), ("f2_switch_i", np.int32),
+        ("invert_out_i", np.int32), ("idle_out_i", np.int32),
+        ("expected_pulse_o", np.int32)
+    ]
+
+    signal_table = np.zeros(total_cycles, dtype=dtype)
+
+    # Initial random values
+    state = {
+        "f1_cnt": random.randint(1, 5),
+        "f2_cnt": random.randint(1, 5),
+        "stop_cnt": random.randint(1, 3),
+        "f1_end": random.randint(6, 20),
+        "f1_switch": 0,
+        "f2_end": random.randint(6, 20),
+        "f2_switch": 0,
+        "invert": random.randint(0, 1),
+        "idle": random.randint(0, 1)
+    }
+    state["f1_switch"] = random.randint(1, state["f1_end"] - 1)
+    state["f2_switch"] = random.randint(1, state["f2_end"] - 1)
+
+    for t in range(total_cycles):
+        if t < MIN_RESET_CYCLES:
+            rst_ni = 0
+        else:
+            rst_ni = 1
+
+        # Change signal values with defined probabilities
+        if random.random() < 0.02:
+            state["f1_cnt"] = random.randint(1, 5)
+            state["f2_cnt"] = random.randint(0, 5)
+            state["stop_cnt"] = random.randint(0, 3)
+
+        if random.random() < 0.05:
+            state["f1_end"] = random.randint(6, 20)
+            state["f1_switch"] = random.randint(1, state["f1_end"] - 1)
+            state["f2_end"] = random.randint(6, 20)
+            state["f2_switch"] = random.randint(1, state["f2_end"] - 1)
+
+        if random.random() < 0.02:
+            state["invert"] ^= 1
+            state["idle"] ^= 1
+
+        start_i = 1 if (t == MIN_RESET_CYCLES + START_DELAY_AFTER_RESET or random.random() < 0.01) else 0
+        stop_i = 1 if (random.random() < 0.01) else 0
+
+        signal_table[t] = (
+            rst_ni, start_i, stop_i,
+            state["f1_cnt"], state["f2_cnt"], state["stop_cnt"],
+            state["f1_end"], state["f1_switch"],
+            state["f2_end"], state["f2_switch"],
+            state["invert"], state["idle"],
+            0
+        )
+
+    golden_model(signal_table)
+    write_stimuli(signal_table, index)
+    print(f"Test {index:02d} written with {len(signal_table)} cycles (Random)")
+
 # ---------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------
 def main():
-    random.seed(43)
+    random.seed(7)
     index = 0
 
     for inv in [0, 1]:
         for idle in [0, 1]:
             for _ in range(2):
                 cfg = generate_rand_config(force_invert=inv, force_idle=idle)
-                create_testcase(cfg, index)
+                create_testcase(cfg, index, use_stop_cmd=True)
                 index += 1
 
     for _ in range(2):
         cfg = generate_rand_config(no_stop=True)
-        create_testcase(cfg, index)
+        create_testcase(cfg, index, use_stop_cmd=True)
         index += 1
 
     for _ in range(2):
         cfg = generate_rand_config(no_f2=True)
-        create_testcase(cfg, index)
+        create_testcase(cfg, index, use_stop_cmd=True)
+        index += 1
+
+
+    for _ in range(8):
+        create_randomized_testcase(index)
         index += 1
 
 if __name__ == "__main__":
