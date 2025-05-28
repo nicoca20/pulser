@@ -4,6 +4,7 @@ RTL_DIR := $(TB_DIR)/../rtl
 OUTPUT_DIR := obj_dir
 TOP_MODULE := tb_pulser_core
 TESTCONFIG ?= 0  # Default test config
+TEMPFILE := golden_pulser/merged_stimuli.txt
 
 # Verilator
 VERILATOR := oseda -2025.01 verilator
@@ -23,41 +24,43 @@ VERILOG_SOURCES := \
 # Target binary
 OUTPUT_BIN := $(OUTPUT_DIR)/V$(TOP_MODULE)
 
-# Default target: Compile only
+STIMULI_COUNT := $(shell ls golden_pulser/stimuli_*.txt 2>/dev/null | wc -l)
+
+
+# Compile and run all test configs
+all: generate_simdata merge_stimuli compile run
+
 compile: $(OUTPUT_BIN)
 
 $(OUTPUT_BIN): $(VERILOG_SOURCES)
 	$(VERILATOR) $(VERILATOR_ARGS) --top $(TOP_MODULE) $(VERILOG_SOURCES)
 
+merge_stimuli:
+	@echo "Merging stimuli files into $(TEMPFILE)..."
+	@rm -f $(TEMPFILE)
+	@head -n 1 golden_pulser/stimuli_0.txt > $(TEMPFILE) # Write header
+	@for file in $$(ls golden_pulser/stimuli_*.txt | sed -E 's/.*stimuli_([0-9]+)\.txt/\1 &/' | sort -n | cut -d' ' -f2); do \
+		if [ "$$file" != "golden_pulser/stimuli_0.txt" ]; then \
+			tail -n +2 "$$file" >> $(TEMPFILE); \
+		fi \
+	done
+
 # Generate simulation data using Python script
 generate_simdata:
 	python3 gen_pulser_golden.py
 
-# Compile and run all test configs
-all: generate_simdata compile run_all
-
 # Run a specific test config (use `make run TESTCONFIG=X`)
-run: $(OUTPUT_BIN)
-	@if [ -z "$(TESTCONFIG)" ]; then \
-		echo "Error: TESTCONFIG variable not set! Use 'make run TESTCONFIG=X'"; \
-		exit 1; \
-	fi
+run_config: $(OUTPUT_BIN)
 	@echo "Running testconfig $(TESTCONFIG)..."
-	oseda -2025.01 ./obj_dir/Vtb_pulser_core +testconfig=$(TESTCONFIG)
+	oseda -2025.01 ./obj_dir/Vtb_pulser_core +stimuli=golden_pulser/stimuli_$(TESTCONFIG).txt
 
 # Run all test configs sequentially
-run_all: $(OUTPUT_BIN)
-	@for i in $(shell seq 0 11); do \
-		if [ ! -f "golden_pulser/config_$${i}.txt" ]; then \
-			echo "Skipping testconfig $${i} (file missing)..."; \
-			continue; \
-		fi; \
-		echo "Running testconfig $${i}..."; \
-		oseda -2025.01 ./obj_dir/Vtb_pulser_core +testconfig=$${i}; \
-	done
+run: $(OUTPUT_BIN)
+	@echo "Running simulation with merged stimuli file..."
+	oseda -2025.01 ./obj_dir/Vtb_pulser_core +stimuli=$(TEMPFILE)
 
 # Clean simulation output
 clean:
-	rm -rf obj_dir logs *.vcd golden_pulser_core
+	rm -rf obj_dir logs *.vcd golden_pulser
 
-.PHONY: compile all run run_all clean generate_simdata
+.PHONY: compile all run run_config clean generate_simdata

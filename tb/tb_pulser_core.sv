@@ -3,6 +3,7 @@
 module tb_pulser_core;
   localparam ClkPeriod    = 10ns;
   localparam ClkHigh      = ClkPeriod / 2;
+  localparam time ApplTime = 2ns;
 
   // Clock & Reset
   logic clk = 0;
@@ -47,14 +48,12 @@ module tb_pulser_core;
   );
 
   initial begin
-    if (!$value$plusargs("testconfig=%d", testconfig_num)) begin
-      $fatal("Missing +testconfig=<N> argument");
+    $display("\n######### Test Output #########\n", stimuli_file);
+    if (!$value$plusargs("stimuli=%s", stimuli_file)) begin
+      $fatal("Missing +stimuli=<file_path> argument");
     end
-    $display("Running test config %0d", testconfig_num);
+    $display("Using stimuli file: %s\n", stimuli_file);
 
-    stimuli_file = $sformatf("golden_pulser/stimuli_%0d.txt", testconfig_num);
-
-    $display("Opening stimuli file: %s", stimuli_file);
     ref_fd = $fopen(stimuli_file, "r");
     if (ref_fd == 0) begin
       $fatal("Failed to open stimuli file: %s", stimuli_file);
@@ -104,10 +103,11 @@ module tb_pulser_core;
     end
 
     $fclose(ref_fd);
-    $display("Test config %0d completed: %0d cycles, %0d errors", testconfig_num, cycle, errors);
-    if (errors == 0) $display("PASS");
-    else $display("FAIL");
+    $display("Test completed: %0d cycles, %0d error(s)\n", cycle, errors);
+    if (errors == 0) $display("PASS\n");
+    else $display("FAIL\n");
 
+    $display("######### Test Output finished #########\n", stimuli_file);
     $finish;
   end
 
