@@ -177,7 +177,9 @@ module pulser #(
   //-----------------------------------------------------------------------------------------------
 
   for (genvar ii = 0; ii < N_PULSER_INST; ii++) begin : gen_pulser_clkgate
-    tc_clk_gating  i_tc_clk_gating (
+    tc_clk_gating #(
+      .IS_FUNCTIONAL    ( 1'b0                )
+    ) i_tc_clk_gating (
       .clk_i            ( clk_i               ),
       .en_i             ( enable_clk[ii]      ),
       .test_en_i        ( 1'b0                ),
