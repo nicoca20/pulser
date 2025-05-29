@@ -10,7 +10,7 @@
 module pulser_general_reg_top #(
   parameter type reg_req_t = logic,
   parameter type reg_rsp_t = logic,
-  parameter int AW = 2
+  parameter int AW = 3
 ) (
   input logic clk_i,
   input logic rst_ni,
@@ -71,6 +71,9 @@ module pulser_general_reg_top #(
   logic ctrl_start_we;
   logic [15:0] ctrl_stop_wd;
   logic ctrl_stop_we;
+  logic [15:0] cfg_qs;
+  logic [15:0] cfg_wd;
+  logic cfg_we;
 
   // Register instances
   // R[ctrl]: V(True)
@@ -105,12 +108,40 @@ module pulser_general_reg_top #(
   );
 
 
+  // R[cfg]: V(False)
+
+  prim_subreg #(
+    .DW      (16),
+    .SWACCESS("RW"),
+    .RESVAL  (16'h0)
+  ) u_cfg (
+    .clk_i   (clk_i    ),
+    .rst_ni  (rst_ni  ),
+
+    // from register interface
+    .we     (cfg_we),
+    .wd     (cfg_wd),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0  ),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.cfg.q ),
+
+    // to register interface (read)
+    .qs     (cfg_qs)
+  );
 
 
-  logic [0:0] addr_hit;
+
+
+  logic [1:0] addr_hit;
   always_comb begin
     addr_hit = '0;
     addr_hit[0] = (reg_addr == PULSER_GENERAL_CTRL_OFFSET);
+    addr_hit[1] = (reg_addr == PULSER_GENERAL_CFG_OFFSET);
   end
 
   assign addrmiss = (reg_re || reg_we) ? ~|addr_hit : 1'b0 ;
@@ -118,7 +149,8 @@ module pulser_general_reg_top #(
   // Check sub-word write is permitted
   always_comb begin
     wr_err = (reg_we &
-              ((addr_hit[0] & (|(PULSER_GENERAL_PERMIT[0] & ~reg_be)))));
+              ((addr_hit[0] & (|(PULSER_GENERAL_PERMIT[0] & ~reg_be))) |
+               (addr_hit[1] & (|(PULSER_GENERAL_PERMIT[1] & ~reg_be)))));
   end
 
   assign ctrl_start_we = addr_hit[0] & reg_we & !reg_error;
@@ -127,6 +159,9 @@ module pulser_general_reg_top #(
   assign ctrl_stop_we = addr_hit[0] & reg_we & !reg_error;
   assign ctrl_stop_wd = reg_wdata[31:16];
 
+  assign cfg_we = addr_hit[1] & reg_we & !reg_error;
+  assign cfg_wd = reg_wdata[15:0];
+
   // Read data return
   always_comb begin
     reg_rdata_next = '0;
@@ -134,6 +169,10 @@ module pulser_general_reg_top #(
       addr_hit[0]: begin
         reg_rdata_next[15:0] = '0;
         reg_rdata_next[31:16] = '0;
+      end
+
+      addr_hit[1]: begin
+        reg_rdata_next[15:0] = cfg_qs;
       end
 
       default: begin
@@ -158,7 +197,7 @@ endmodule
 
 module pulser_general_reg_top_intf
 #(
-  parameter int AW = 2,
+  parameter int AW = 3,
   localparam int DW = 32
 ) (
   input logic clk_i,

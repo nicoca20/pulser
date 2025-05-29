@@ -93,6 +93,12 @@ module pulser #(
   logic [N_PULSER_INST - 1:0]       start_pulse, stop_pulse;
 
   //-----------------------------------------------------------------------------------------------
+  // Wires to enable / disable each Pulser.
+  //-----------------------------------------------------------------------------------------------
+  logic [N_PULSER_INST - 1:0]       enable_clk;
+  logic [N_PULSER_INST - 1:0]       clk_pulser;
+
+  //-----------------------------------------------------------------------------------------------
   // Periph to reg instantiation to connect OBI to the register files.
   //-----------------------------------------------------------------------------------------------
 
@@ -167,13 +173,30 @@ module pulser #(
   end
 
   //-----------------------------------------------------------------------------------------------
+  // Pulser clkgate instantiations
+  //-----------------------------------------------------------------------------------------------
+
+  for (genvar ii = 0; ii < N_PULSER_INST; ii++) begin : gen_pulser_clkgate
+    tc_clk_gating #(
+      .IS_FUNCTIONAL    ( 1'b0                )
+    ) i_tc_clk_gating (
+      .clk_i            ( clk_i               ),
+      .en_i             ( enable_clk[ii]      ),
+      .test_en_i        ( 1'b0                ),
+      .clk_o            ( clk_pulser[ii]      )
+    );
+  end
+
+  assign enable_clk = reg2hw_general.cfg.q[N_PULSER_INST - 1:0];
+
+  //-----------------------------------------------------------------------------------------------
   // Pulser instantiations
   //-----------------------------------------------------------------------------------------------
 
   for (genvar ii = 0; ii < N_PULSER_INST; ii++) begin : gen_pulser_cores
 
     pulser_core i_pulser_core (
-      .clk_i          ( clk_i                             ),
+      .clk_i          ( clk_pulser[ii]                    ),
       .rst_ni         ( rst_ni                            ),
       .start_i        ( start_pulse[ii]                   ),
       .stop_i         ( stop_pulse[ii]                    ),

@@ -11,6 +11,7 @@
 - Software-controllable start/stop mechanisms
 - Simulation testbench for `pulser_core`
 - Auto-generated register definitions from HJSON
+- Pulsers can be enabled / disabled individually
 
 ## Overview
 
@@ -32,6 +33,7 @@ The following diagram shows a conceptual single-`pulser_core` setup with its reg
 - **`periph_to_reg`**: Converts OBI to internal register requests/responses.
 - **`pulser_reg_top`**: Holds configuration and control (start/stop) registers.
 - **`pulser_core`**: Executes the pulse generation logic.
+- **`tc_clk_gating`**: Clockgate from tech cells generic. Allows disabling pulser to save power
 
 ### Full System Architecture
 
@@ -41,8 +43,9 @@ The implemented system supports multiple `pulser_core` instances, each with its 
 
 - **`periph_to_reg`**: OBI-to-register bridge
 - **`pulser_core_reg_top`**: Per-instance configuration registers
-- **`pulser_general_reg_top`**: Shared start/stop control
+- **`pulser_general_reg_top`**: Shared control, to enable / disable and start / stop pulser
 - **`pulser_core`**: Independent pulse generation logic
+- **`tc_clk_gating`**: Clockgate from tech cells generic. Allows disabling pulser to save power
 
 ## Register Generation
 
@@ -55,6 +58,8 @@ SystemVerilog files:
 regtool.py -r -t rtl/ data/pulser_core.hjson
 regtool.py -r -t rtl/ data/pulser_general.hjson
 ```
+
+<!-- ../pulpissimo/hw/vendored_ips/gpio/util/reggen/regtool.py -r -t rtl/ data/pulser_general.hjson -->
 
 C header files:
 ```bash

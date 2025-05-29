@@ -40,6 +40,18 @@
         desc: "Set one to stop the pulser."
         }
       ]
+    },
+    {
+      name: "CFG",
+      desc: "Set global configs of Pulsers. Currently only enable is active",
+      swaccess: "rw",
+      hwaccess: "hro",
+      fields: [
+        { bits: "15:0",
+        name: "EN",
+        desc: "Activate / Deactivate Pulser (enable / disable clk)."
+        }
+      ]
     }
   ]
 }
