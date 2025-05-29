@@ -7,7 +7,7 @@
 package pulser_general_reg_pkg;
 
   // Address widths within the block
-  parameter int BlockAw = 2;
+  parameter int BlockAw = 3;
 
   ////////////////////////////
   // Typedefs for registers //
@@ -24,25 +24,33 @@ package pulser_general_reg_pkg;
     } stop;
   } pulser_general_reg2hw_ctrl_reg_t;
 
+  typedef struct packed {
+    logic [15:0] q;
+  } pulser_general_reg2hw_cfg_reg_t;
+
   // Register -> HW type
   typedef struct packed {
-    pulser_general_reg2hw_ctrl_reg_t ctrl; // [33:0]
+    pulser_general_reg2hw_ctrl_reg_t ctrl; // [49:16]
+    pulser_general_reg2hw_cfg_reg_t cfg; // [15:0]
   } pulser_general_reg2hw_t;
 
   // Register offsets
-  parameter logic [BlockAw-1:0] PULSER_GENERAL_CTRL_OFFSET = 2'h 0;
+  parameter logic [BlockAw-1:0] PULSER_GENERAL_CTRL_OFFSET = 3'h 0;
+  parameter logic [BlockAw-1:0] PULSER_GENERAL_CFG_OFFSET = 3'h 4;
 
   // Reset values for hwext registers and their fields
   parameter logic [31:0] PULSER_GENERAL_CTRL_RESVAL = 32'h 0;
 
   // Register index
   typedef enum int {
-    PULSER_GENERAL_CTRL
+    PULSER_GENERAL_CTRL,
+    PULSER_GENERAL_CFG
   } pulser_general_id_e;
 
   // Register width information to check illegal writes
-  parameter logic [3:0] PULSER_GENERAL_PERMIT [1] = '{
-    4'b 1111  // index[0] PULSER_GENERAL_CTRL
+  parameter logic [3:0] PULSER_GENERAL_PERMIT [2] = '{
+    4'b 1111, // index[0] PULSER_GENERAL_CTRL
+    4'b 0011  // index[1] PULSER_GENERAL_CFG
   };
 
 endpackage
