@@ -122,13 +122,16 @@ module pulser #(
 
     .gnt_o     ( obi_rsp_o.gnt      ),
     .r_rdata_o ( obi_rsp_o.r.rdata  ),
-    .r_opc_o   (  ),
+    .r_opc_o   ( obi_rsp_o.r.err    ),
     .r_id_o    ( obi_rsp_o.r.rid    ),
     .r_valid_o ( obi_rsp_o.rvalid   ),
 
     .reg_req_o ( reg_req            ),
     .reg_rsp_i ( reg_rsp            )
   );
+
+  // Set unused wire to avoid any "Wire has no driver" warnings
+  assign obi_rsp_o.r.r_optional = 1'b0;
 
   //-----------------------------------------------------------------------------------------------
   // Pulser General Register instantiation.
