@@ -2,7 +2,7 @@
 
 This guide explains how to configure and operate the pulser module.
 
-## Output Parameters
+## Parameters
 
 Each pulser provides several parameters to control its pulsing behavior:
 
@@ -46,4 +46,16 @@ Example of multiple pulsers in action:
 
 [![Multiple Pulsers Example](pulsing_example.svg)](pulsing_example.svg)
 
----
+## Stop Pulse Behavior
+
+When the pulser is stopped, the output generates a "stop pulse" to signal the end of the sequence. The behavior of this stop pulse depends on which frequency was active last:
+
+- **If the last pulse was at frequency F2:**
+  The stop pulse will be an inverted F2 pulse.
+
+- **Otherwise (if F2 was not active):**
+  The stop pulse will be an inverted F1 pulse.
+
+In both cases, the stop pulse starts at 0 and transitions to 1 after the configured switch point, following the duty cycle settings of the respective frequency.
+
+This ensures a consistent and clearly defined end-of-sequence signal, matching the timing characteristics of the last active frequency but with inverted logic.
