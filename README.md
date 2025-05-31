@@ -2,6 +2,9 @@
 [![SHL-0.51 license](https://img.shields.io/badge/license-SHL--0.51-green)](LICENSE)
 
 **Pulser** is a SystemVerilog-based hardware project for generating precisely timed output pulses with configurable parameters. It includes a complete RTL implementation, simulation environment, and auto-generated register files. Each pulser instance is configurable and controllable via the Open Bus Interface (OBI).
+## Pulser Configuration
+
+For detailed instructions on configuring and operating the pulser, see the [Pulser Configuration Guide](./doc/pulser_usage.md).
 
 ## Features
 
