@@ -3,7 +3,7 @@
 // Author      : Nico Canzani <ncanzani@student.ethz.ch>
 // Description : Top-Level Wrapper for multiple Pulse Generators
 //
-// This module integrates multiple instances of the `pulser_core` module and exposes unified
+// This module integrates multiple instances of the `pulser_core` module and exposes
 // register interfaces over the OBI (Open Bus Interface) protocol.
 //
 // Key Features:
@@ -12,8 +12,9 @@
 //   - Instance selection and register decode via address bits
 //   - Synchronous OBI protocol handshake handling (req, gnt, rvalid, etc.)
 //   - Centralized command register for starting/stopping multiple pulsers simultaneously
+//   - Enables clock gating for each pulser instance to save power
 //
-// REGISTER MAP (32 Bit, starting at LSB):
+// REGISTER MAP for pulser_core (32 Bit, starting at LSB):
 //   - 0x00 : F1_CFG      : {f1_end, f1_switch}               16 + 16 Bit
 //   - 0x04 : F2_CFG      : {f2_end, f2_switch}               16 + 16 Bit
 //   - 0x08 : COUNT_CFG   : {stop_count, f2_count, f1_count}  8 + 8 + 8 Bit
@@ -27,6 +28,7 @@
 // Dependencies:
 //   - `pulser_core.sv` (pulser logic)
 //   - `common_cells/registers.svh` (flip-flop and register macros)
+//   - `obi_pkg.sv` (Open Bus Interface definitions)
 //
 // Copyright 2025 ETH Zurich and University of Bologna.
 // Solderpad Hardware License, Version 0.51, see LICENSE for details.
@@ -62,6 +64,7 @@ module pulser #(
   // N_PULSER_INST + 1 to select general config register as well
   localparam int BLOCK_SEL_ADDR_WIDTH = (N_PULSER_INST < 2) ? 1 : $clog2(N_PULSER_INST + 1);
   localparam int AW_CORE_REG = pulser_core_reg_pkg::BlockAw;
+  localparam int AW_GENERAL_REG = pulser_general_reg_pkg::BlockAw;
 
   //-----------------------------------------------------------------------------------------------
   // Wires to demux the pulser obi requests internally
@@ -135,7 +138,7 @@ module pulser #(
 
   //-----------------------------------------------------------------------------------------------
   // Pulser General Register instantiation.
-  // Currently only start / stop pulses from here.
+  // start / stop and enable pulser from here.
   //-----------------------------------------------------------------------------------------------
 
   pulser_general_reg_top #(
@@ -232,62 +235,31 @@ module pulser #(
   end
 
   //-----------------------------------------------------------------------------------------------
-  // Request
-  // Connect reg request to the pulser registers but use individual valid signal per pulser
-  //-----------------------------------------------------------------------------------------------
-  always_comb begin
-    for (int ii = 0; ii < N_PULSER_INST; ii++) begin
-      reg_req_mux[ii].addr   = reg_req.addr;
-      reg_req_mux[ii].write  = reg_req.write;
-      reg_req_mux[ii].wdata  = reg_req.wdata;
-      reg_req_mux[ii].wstrb  = reg_req.wstrb;
-      reg_req_mux[ii].valid  = valid_pulser_req[ii];
-    end
-  end
-
-  //-----------------------------------------------------------------------------------------------
-  // Request
-  // Connect reg request to the general registers
-  //-----------------------------------------------------------------------------------------------
-
-  assign reg_req_general.addr   = reg_req.addr;
-  assign reg_req_general.write  = reg_req.write;
-  assign reg_req_general.wdata  = reg_req.wdata;
-  assign reg_req_general.wstrb  = reg_req.wstrb;
-  assign reg_req_general.valid  = valid_general_req;
-
-  //-----------------------------------------------------------------------------------------------
-  //
-  // Generate individual valid signals
-  //
-  // Depends on chosen address
-  // 0 ... N_PULSER_INST-1:   pulser_core_reg_top of pulser 0... N-1
-  // N_PULSER_INST:           General config register
-  //
-  // The register address width is defined as: AW_CORE_REG = pulser_core_reg_pkg::BlockAw;
-  // Use the following bits to address the different regfiles.
-  // Done like this, that the different pulsers have one shared address space in the OBI defs.
-  //
-  // Important: Changing AW of the general register needs adjustments in the whole DEMUX!
+  // Router for register requests
+  // This block decodes the address to route the register request to the correct pulser instance
+  // and the general config register.
+  // It uses the `block_sel` bits to determine which pulser instance or general config register
+  // should handle the request.
   //-----------------------------------------------------------------------------------------------
 
   assign block_sel = reg_req.addr[AW_CORE_REG + BLOCK_SEL_ADDR_WIDTH - 1 : AW_CORE_REG];
 
-  assign valid_general_req =
-    (block_sel == N_PULSER_INST) ? reg_req.valid : 1'b0;
+  always_comb begin : router_addr_decode
+    reg_req_mux = '0;
+    reg_req_general = '0;
 
-  assign valid_pulser_req =
-    (block_sel < N_PULSER_INST) ? (reg_req.valid << block_sel) : '0;
-
-  //-----------------------------------------------------------------------------------------------
-  // Response
-  // Mux Response from general or pulser register depending on chosen address
-  //-----------------------------------------------------------------------------------------------
-
-  assign reg_rsp =
-    (block_sel == N_PULSER_INST) ? reg_rsp_general :
-    (block_sel < N_PULSER_INST)  ? reg_rsp_mux[block_sel] :
-                                   '0;
+    if (block_sel == N_PULSER_INST) begin
+      // If block_sel is equal to N_PULSER_INST, it is the general config register
+      reg_req_general = reg_req;
+      reg_req_general.addr = reg_req.addr[AW_GENERAL_REG - 1:0];
+      reg_rsp = reg_rsp_general;
+    end else if (block_sel < N_PULSER_INST) begin
+      // If block_sel is less than N_PULSER_INST, it is a pulser register
+      reg_req_mux[block_sel] = reg_req;
+      reg_req_mux[block_sel].addr = reg_req.addr[AW_CORE_REG - 1:0];
+      reg_rsp = reg_rsp_mux[block_sel];
+    end
+  end
 
   //-----------------------------------------------------------------------------------------------
   // READY signal: high when pulser is in IDLE or DONE state
