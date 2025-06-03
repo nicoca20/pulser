@@ -21,6 +21,10 @@
 //   - 0x0c : STATUS      : {state, ready}                    3 + 1 Bit
 //   - 0x10 : OUT_CTRL    : {idle_out, invert_out}            1 + 1 Bit
 //
+// REGISTER MAP for pulser_general (32 Bit, starting at LSB):
+//   - 0x00 : PULSER_GENERAL_CTRL     : {start, stop}         16 + 16 Bit
+//   - 0x04 : PULSER_GENERAL_CFG      : {enable}              16 Bit
+//
 // Each pulser is independently configurable and drives its own `pulse_o` output.
 // The wrapper tracks FSM states and readiness status from each instance,
 // and handles proper decoding, storage, and routing of configuration data.
@@ -71,8 +75,6 @@ module pulser #(
   //-----------------------------------------------------------------------------------------------
 
   logic [BLOCK_SEL_ADDR_WIDTH-1:0]  block_sel;
-  logic [N_PULSER_INST - 1:0]       valid_pulser_req;
-  logic                             valid_general_req;
 
   reg_req_t reg_req;
   reg_rsp_t reg_rsp;
@@ -145,36 +147,36 @@ module pulser #(
     .reg_req_t  ( reg_req_t   ),
     .reg_rsp_t  ( reg_rsp_t   )
   ) i_pulser_general_reg_top (
-    .clk_i      ( clk_i       ),
-    .rst_ni     ( rst_ni      ),
+    .clk_i      ( clk_i           ),
+    .rst_ni     ( rst_ni          ),
     .reg_req_i  ( reg_req_general ),
-    .reg_rsp_o  ( reg_rsp_general     ),
+    .reg_rsp_o  ( reg_rsp_general ),
     // To HW
     .reg2hw     ( reg2hw_general  ),
 
     // Config: If 1, explicit error return for unmapped register access
-    .devmode_i  ( 1'b1 )
+    .devmode_i  ( 1'b1            )
   );
 
   //-----------------------------------------------------------------------------------------------
   // Pulser Register instantiations
   //-----------------------------------------------------------------------------------------------
 
-  for (genvar ii = 0; ii < N_PULSER_INST; ii++) begin : gen_pulser_regs
+  for (genvar i = 0; i < N_PULSER_INST; i++) begin : gen_pulser_regs
     pulser_core_reg_top #(
       .reg_req_t  ( reg_req_t       ),
       .reg_rsp_t  ( reg_rsp_t       )
     ) i_pulser_core_reg_top (
       .clk_i      ( clk_i           ),
       .rst_ni     ( rst_ni          ),
-      .reg_req_i  ( reg_req_mux[ii] ),
-      .reg_rsp_o  ( reg_rsp_mux[ii] ),
+      .reg_req_i  ( reg_req_mux[i] ),
+      .reg_rsp_o  ( reg_rsp_mux[i] ),
       // To HW
-      .reg2hw     ( reg2hw[ii]      ),
-      .hw2reg     ( hw2reg[ii]      ),
+      .reg2hw     ( reg2hw[i]      ),
+      .hw2reg     ( hw2reg[i]      ),
 
       // Config: If 1, explicit error return for unmapped register access
-      .devmode_i  ( 1'b1 )
+      .devmode_i  ( 1'b1            )
     );
   end
 
@@ -182,14 +184,14 @@ module pulser #(
   // Pulser clkgate instantiations
   //-----------------------------------------------------------------------------------------------
 
-  for (genvar ii = 0; ii < N_PULSER_INST; ii++) begin : gen_pulser_clkgate
+  for (genvar i = 0; i < N_PULSER_INST; i++) begin : gen_pulser_clkgate
     tc_clk_gating #(
-      .IS_FUNCTIONAL    ( 1'b0                )
+      .IS_FUNCTIONAL    ( 1'b0            )
     ) i_tc_clk_gating (
-      .clk_i            ( clk_i               ),
-      .en_i             ( enable_clk[ii]      ),
-      .test_en_i        ( 1'b0                ),
-      .clk_o            ( clk_pulser[ii]      )
+      .clk_i            ( clk_i           ),
+      .en_i             ( enable_clk[i]  ),
+      .test_en_i        ( 1'b0            ),
+      .clk_o            ( clk_pulser[i]  ),
     );
   end
 
@@ -199,38 +201,38 @@ module pulser #(
   // Pulser instantiations
   //-----------------------------------------------------------------------------------------------
 
-  for (genvar ii = 0; ii < N_PULSER_INST; ii++) begin : gen_pulser_cores
+  for (genvar i = 0; i < N_PULSER_INST; i++) begin : gen_pulser_cores
 
     pulser_core i_pulser_core (
-      .clk_i          ( clk_pulser[ii]                    ),
-      .rst_ni         ( rst_ni                            ),
-      .start_i        ( start_pulse[ii]                   ),
-      .stop_i         ( stop_pulse[ii]                    ),
-      .f1_cnt_i       ( reg2hw[ii].cfg_cnt.f1.q           ),
-      .f2_cnt_i       ( reg2hw[ii].cfg_cnt.f2.q           ),
-      .stop_cnt_i     ( reg2hw[ii].cfg_cnt.cnt_stop.q     ),
-      .f1_end_i       ( reg2hw[ii].cfg_f1.endval.q        ),
-      .f1_switch_i    ( reg2hw[ii].cfg_f1.switchval.q     ),
-      .f2_end_i       ( reg2hw[ii].cfg_f2.endval.q        ),
-      .f2_switch_i    ( reg2hw[ii].cfg_f2.switchval.q     ),
-      .invert_out_i   ( reg2hw[ii].ctrl_out.invert_out.q  ),
-      .idle_out_i     ( reg2hw[ii].ctrl_out.idle_out.q    ),
-      .pulse_o        ( pulse_o[ii]                       ),
-      .state_o        ( state[ii]                          )
+      .clk_i          ( clk_pulser[i]                    ),
+      .rst_ni         ( rst_ni                           ),
+      .start_i        ( start_pulse[i]                   ),
+      .stop_i         ( stop_pulse[i]                    ),
+      .f1_cnt_i       ( reg2hw[i].cfg_cnt.f1.q           ),
+      .f2_cnt_i       ( reg2hw[i].cfg_cnt.f2.q           ),
+      .stop_cnt_i     ( reg2hw[i].cfg_cnt.cnt_stop.q     ),
+      .f1_end_i       ( reg2hw[i].cfg_f1.endval.q        ),
+      .f1_switch_i    ( reg2hw[i].cfg_f1.switchval.q     ),
+      .f2_end_i       ( reg2hw[i].cfg_f2.endval.q        ),
+      .f2_switch_i    ( reg2hw[i].cfg_f2.switchval.q     ),
+      .invert_out_i   ( reg2hw[i].ctrl_out.invert_out.q  ),
+      .idle_out_i     ( reg2hw[i].ctrl_out.idle_out.q    ),
+      .pulse_o        ( pulse_o[i]                       ),
+      .state_o        ( state[i]                         )
     );
   end
 
   //-----------------------------------------------------------------------------------------------
   // Pulser_core inputs and outputs
-  // Connect pulser_core signals not comming directly from reg2hw
+  // Connect pulser_core signals
   //-----------------------------------------------------------------------------------------------
   always_comb begin
-    for (int ii = 0; ii < N_PULSER_INST; ii++) begin
-      start_pulse[ii]           = reg2hw_general.ctrl.start.qe & reg2hw_general.ctrl.start.q[ii];
-      stop_pulse[ii]            = reg2hw_general.ctrl.stop.qe & reg2hw_general.ctrl.stop.q[ii];
+    for (int i = 0; i < N_PULSER_INST; i++) begin
+      start_pulse[i]           = reg2hw_general.ctrl.start.qe & reg2hw_general.ctrl.start.q[i];
+      stop_pulse[i]            = reg2hw_general.ctrl.stop.qe & reg2hw_general.ctrl.stop.q[i];
 
-      hw2reg[ii].status.state.d = state[ii];
-      hw2reg[ii].status.state.de = 1'b1; // Pass state to FF all the time
+      hw2reg[i].status.state.d = state[i];
+      hw2reg[i].status.state.de = 1'b1; // Pass state to FF all the time
     end
   end
 
