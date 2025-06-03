@@ -247,6 +247,7 @@ module pulser #(
   always_comb begin : router_addr_decode
     reg_req_mux = '0;
     reg_req_general = '0;
+    reg_resp = '0;
 
     if (block_sel == N_PULSER_INST) begin
       // If block_sel is equal to N_PULSER_INST, it is the general config register
