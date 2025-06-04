@@ -223,16 +223,13 @@ module pulser #(
   end
 
   //-----------------------------------------------------------------------------------------------
-  // Pulser_core inputs and outputs
-  // Connect pulser_core signals
+  // Pulser_core inputs
+  // Connect pulser_core start and stop signals
   //-----------------------------------------------------------------------------------------------
   always_comb begin
     for (int i = 0; i < N_PULSER_INST; i++) begin
       start_pulse[i]           = reg2hw_general.ctrl.start.qe & reg2hw_general.ctrl.start.q[i];
       stop_pulse[i]            = reg2hw_general.ctrl.stop.qe & reg2hw_general.ctrl.stop.q[i];
-
-      hw2reg[i].status.state.d = state[i];
-      hw2reg[i].status.state.de = 1'b1; // Pass state to FF all the time
     end
   end
 
@@ -263,16 +260,31 @@ module pulser #(
   end
 
   //-----------------------------------------------------------------------------------------------
-  // READY signal: high when pulser is in IDLE or DONE state
+  // Update state and READY status for each pulser instance:
+  //   - STATE reflects the current pulser state.
+  //   - READY is asserted when STATE is either IDLE or DONE.
+  //   - Propagate both STATE and READY into hw2reg[i].status fields.
   //-----------------------------------------------------------------------------------------------
+
   localparam logic [2:0] STATE_IDLE = 3'd0;
   localparam logic [2:0] STATE_DONE = 3'd4;
 
   always_comb begin
     for (int i = 0; i < N_PULSER_INST; i++) begin
+      // Drive state field into hw2reg:
+      //   .status.state.d  holds the current state value,
+      //   .status.state.de is always enabled.
+      hw2reg[i].status.state.d  = state[i];
+      hw2reg[i].status.state.de = 1'b1;
+
+      // Determine if this pulser is “ready” (in IDLE or DONE)
       ready[i] = (state[i] == STATE_IDLE) || (state[i] == STATE_DONE);
-      hw2reg[i].status.ready.d = ready[i];
-      hw2reg[i].status.ready.de = 1'b1; // Pass ready bit to FF all the time
+
+      // Drive READY field into hw2reg:
+      //   .status.ready.d  holds the ready flag,
+      //   .status.ready.de is always enabled.
+      hw2reg[i].status.ready.d  = ready[i];
+      hw2reg[i].status.ready.de = 1'b1;
     end
   end
 
