@@ -27,8 +27,8 @@ Each pulser provides several parameters to control its pulsing behavior:
 | **F2 Count**    | Number of cycles for the second pulse (F2)      |
 | **STOP Count**  | Number of stop pulse cycles                     |
 
-> **Note:**  
-> - **F1** and **F2** are two independent frequencies.  
+> **Note:**
+> - **F1** and **F2** are two independent frequencies.
 > - The `End` parameter sets the period (inverse of frequency), while the `Switch` parameter sets the duty cycle for each frequency.
 
 The diagram below illustrates how these parameters affect the pulser output:
@@ -42,16 +42,16 @@ The diagram below illustrates how these parameters affect the pulser output:
 
 The pulser output can be further configured:
 
-- **Inverted Output**  
-  - When set to `1`, the output pulses are active-low instead of active-high during pulsing phases.  
+- **Inverted Output**
+  - When set to `1`, the output pulses are active-low instead of active-high during pulsing phases.
   - Example: If a normal F1 pulse would go from `0→1` at the switch point, an inverted output goes `1→0`.
 
-- **Idle Level**  
-  - Defines the steady value on the output pin when no pulse sequence is running.  
-  - `0` = output held low (classic behavior);  
+- **Idle Level**
+  - Defines the steady value on the output pin when no pulse sequence is running.
+  - `0` = output held low (classic behavior);
     `1` = output held high (useful if you want a negative-going pulse or delay a sequence but start at same time as other pulsers).
 
-Below is an example of each output configuration combination.  
+Below is an example of each output configuration combination.
 ![Output Modes](different_out_modes.svg)
 *Figure: Idle Level and Invert Output configurations.*
 
@@ -61,10 +61,10 @@ Below is an example of each output configuration combination.
 
 When the F1 (and possibly F2) pulses are done, the output generates a "stop pulse". The behavior of this stop pulse depends on which frequency was active last:
 
-- **If the last pulse was at frequency F2:**  
+- **If the last pulse was at frequency F2:**
   The stop pulse will be an inverted F2 pulse.
 
-- **Otherwise (if F2 was not active):**  
+- **Otherwise (if F2 was not active):**
   The stop pulse will be an inverted F1 pulse.
 
 This helps dampen oscillations created by the F1/F2 pulses.
@@ -76,28 +76,28 @@ This helps dampen oscillations created by the F1/F2 pulses.
 
 ## Operation
 
-1. **Enable the Clock**  
+1. **Enable the Clock**
    Each pulser instance’s clock must be enabled via the general configuration register. Assuming `GENERAL_BASE` is the base address of the `pulser_general` register block, to enable instance `i` (0-based).
 
-2. **Configure F1 & F2**  
-   Use the core configuration registers to set the F1/F2 end and switch values. Let `CORE_i_BASE` be the base address of pulser core instance `i`.  
+2. **Configure F1 & F2**
+   Use the core configuration registers to set the F1/F2 end and switch values. Let `CORE_i_BASE` be the base address of pulser core instance `i`.
 
-3. **Set Pulse Counts**  
+3. **Set Pulse Counts**
    Specify how many cycles to output in each phase (F1, F2) and how many stop pulses. Write to the CNT register.
 
-4. **Set Idle Level & Invert Output (Optional)**  
+4. **Set Idle Level & Invert Output (Optional)**
    Control the idle output and inversion via the CTRL_OUT register.
 
-5. **Start the Pulser**  
+5. **Start the Pulser**
    To begin the pulse sequence for instance `i`, write to the general control register.
 
-6. **Poll for Completion (Optional)**  
+6. **Poll for Completion (Optional)**
    To know, when the pulser finished, read the core status register and check the READY bit.
 
-7. **Stopping Mid-Sequence (Optional)**  
+7. **Stopping Mid-Sequence (Optional)**
    To request an immediate stop for instance `i`, write to the STOP field in the general control register.
 
-8. **Multiple Instances**  
+8. **Multiple Instances**
    You can control multiple cores independently or synchronized, as shown below.
 
 ![Multiple Pulsers Example](pulsing_example.svg)
