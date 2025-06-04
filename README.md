@@ -7,6 +7,7 @@
 - Auto-generated register files (via HJSON + `regtool.py`)
 - Auto-generated C-header for software control (not included, can be generated)
 - A top-level bus interface (OBI) for easy integration
+- Up to 16 pulsers
 
 ---
 
@@ -134,7 +135,7 @@ For detailed instructions on configuring and operating the Pulser, see the [Puls
 
 ## Register Generation
 
-All registers are defined in HJSON under `data/` and converted via `regtool.py`:
+All registers are defined in HJSON under `data/` and generated via `regtool.py`:
 - Core registers: `pulser_core.hjson`
 - General registers: `pulser_general.hjson`
 
