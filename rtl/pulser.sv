@@ -254,12 +254,10 @@ module pulser #(
     if (block_sel == N_PULSER_INST) begin
       // If block_sel is equal to N_PULSER_INST, it is the general config register
       reg_req_general = reg_req;
-      reg_req_general.addr = reg_req.addr[AW_GENERAL_REG - 1:0];
       reg_rsp = reg_rsp_general;
     end else if (block_sel < N_PULSER_INST) begin
       // If block_sel is less than N_PULSER_INST, it is a pulser register
       reg_req_mux[block_sel] = reg_req;
-      reg_req_mux[block_sel].addr = reg_req.addr[AW_CORE_REG - 1:0];
       reg_rsp = reg_rsp_mux[block_sel];
     end
   end
