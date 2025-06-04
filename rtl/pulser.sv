@@ -189,9 +189,9 @@ module pulser #(
       .IS_FUNCTIONAL    ( 1'b0            )
     ) i_tc_clk_gating (
       .clk_i            ( clk_i           ),
-      .en_i             ( enable_clk[i]  ),
+      .en_i             ( enable_clk[i]   ),
       .test_en_i        ( 1'b0            ),
-      .clk_o            ( clk_pulser[i]  ),
+      .clk_o            ( clk_pulser[i]   )
     );
   end
 
@@ -249,7 +249,7 @@ module pulser #(
   always_comb begin : router_addr_decode
     reg_req_mux = '0;
     reg_req_general = '0;
-    reg_resp = '0;
+    reg_rsp = '0;
 
     if (block_sel == N_PULSER_INST) begin
       // If block_sel is equal to N_PULSER_INST, it is the general config register
