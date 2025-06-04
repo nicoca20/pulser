@@ -78,13 +78,13 @@ regtool.py -r -t rtl/ data/pulser_core.hjson
 regtool.py -r -t rtl/ data/pulser_general.hjson
 ```
 
-<!-- ../pulpissimo/hw/vendored_ips/gpio/util/reggen/regtool.py -r -t rtl/ data/pulser_general.hjson -->
-
 C header files:
 ```bash
 regtool.py -D data/pulser_core.hjson -o sw/pulser_core_reg_defs.h
 regtool.py -D data/pulser_general.hjson -o sw/pulser_general_reg_defs.h
 ```
+
+The `regtool.py` used to generate the register files was from the [pulp-platform/carfield](https://github.com/pulp-platform/carfield) repository at commit hash `0136ff9`.
 
 ## License
 
