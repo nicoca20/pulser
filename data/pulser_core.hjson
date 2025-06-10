@@ -1,0 +1,111 @@
+// Copyright lowRISC contributors (OpenTitan project).
+// Licensed under the Apache License, Version 2.0, see LICENSE for details.
+// SPDX-License-Identifier: Apache-2.0
+{
+  name: "pulser_core",
+  clock_primary: "clk_i",
+  reset_primary: "rst_ni"
+  // one_line_desc: "Configurable multi-phase multi Pulser pulse generator",
+  // one_paragraph_desc: '''
+  //   The Pulser peripheral generates sequences of digital pulses based on configurable timing and waveform parameters.
+  //   Each instance includes three programmable waveform phases: F1, F2, and STOP. Pulses are generated using programmable
+  //   counters for pulse count, duration, and duty cycle. The STOP waveform is always the inverse of the last waveform.
+  //   For example, if F2 was high for 4 cycles and stops after 10, Stop will be low for 4 cycles, go to high until it reaches 10.
+  // '''
+  // // Unique comportable IP identifier defined under KNOWN_CIP_IDS in the regtool.
+
+  bus_interfaces: [
+    {
+      protocol: "reg_iface",
+      direction: "device"
+    }
+  ],
+
+  regwidth: "32",
+  registers: [
+    {
+      name: "CFG_F1",
+      desc: "Phase F1 configuration: end and switch points",
+      swaccess: "rw",
+      hwaccess: "hro",
+      fields: [
+        { bits: "15:0",
+        name: "SWITCHVAL",
+        desc: "Number of cycles until switch (set duty cycle)"
+        },
+        { bits: "31:16",
+        name: "ENDVAL",
+        desc: "Number of cycles until pulse done (set frequency)"
+        }
+      ]
+    },
+    {
+      name: "CFG_F2",
+      desc: "Phase F2 configuration: end and switch points",
+      swaccess: "rw",
+      hwaccess: "hro",
+      fields: [
+        { bits: "15:0",
+        name: "SWITCHVAL",
+        desc: "Number of cycles until switch (set duty cycle)"
+        },
+        { bits: "31:16",
+        name: "ENDVAL",
+        desc: "Number of cycles until pulse done (set frequency)"
+        }
+      ]
+    },
+    {
+      name: "CFG_CNT",
+      desc: "Configure number of pulses for each phase",
+      swaccess: "rw",
+      hwaccess: "hro",
+      fields: [
+        { bits: "7:0",
+        name: "F1",
+        desc: "Number of f1 pulses" 
+        },
+        { bits: "15:8",
+        name: "F2",
+        desc: "Number of f2 pulses" 
+        },
+        { bits: "23:16",
+        name: "CNT_STOP",
+        desc: "Number of stop pulses" 
+        },
+      ]
+    },
+    {
+      name: "STATUS",
+      desc: "Read state of pulser",
+      swaccess: "ro",
+      hwaccess: "hwo",
+      fields: [
+        { bits: "0",
+        name: "READY",
+        desc: "High, if pulser is ready to start next pulsing phase"
+        },
+        { bits: "3:1",
+        name: "STATE",
+        desc: "Current state of the pulser: 0: Idle, 1: Running F1, 2: Running F2, 3: Running Stop pulse, 4: Done."
+        }
+      ]
+    },
+    {
+      name: "CTRL_OUT",
+      desc: "Set idle state of pulser and if pulse phase should be inverted",
+      swaccess: "rw",
+      hwaccess: "hro",
+      fields: [
+        { bits: "0",
+        name: "INVERT_OUT",
+        desc: "Set 1, if pulser output should be inverted during pulsing phase."
+        },
+        { bits: "1",
+        name: "IDLE_OUT",
+        desc: "Control output during idle: 1 to set to 1, 0 to set to 0."
+        }
+      ]
+    }
+  ]
+}

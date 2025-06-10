@@ -1,12 +1,21 @@
+// Copyright 2025 ETH Zurich and University of Bologna.
+// Solderpad Hardware License, Version 0.51, see LICENSE for details.
+// SPDX-License-Identifier: SHL-0.51
+//
+// Nico Canzani <ncanzani@student.ethz.ch>
+
 `timescale 1ns/1ps
 
-module tb_pulser;
+module tb_pulser_core;
+  localparam ClkPeriod    = 10ns;
+  localparam ClkHigh      = ClkPeriod / 2;
+  localparam time ApplTime = 2ns;
 
   // Clock & Reset
   logic clk = 0;
   logic rst;
 
-  always #5 clk = ~clk;
+  always #ClkHigh clk = ~clk;
 
   // DUT inputs
   logic start, stop;
@@ -26,7 +35,7 @@ module tb_pulser;
   int expected_pulse;
 
   // Instantiate DUT
-  pulser dut (
+  pulser_core dut (
     .clk_i(clk),
     .rst_ni(rst),
     .start_i(start),
@@ -45,14 +54,12 @@ module tb_pulser;
   );
 
   initial begin
-    if (!$value$plusargs("testconfig=%d", testconfig_num)) begin
-      $fatal("Missing +testconfig=<N> argument");
+    $display("\n######### Test Output #########\n", stimuli_file);
+    if (!$value$plusargs("stimuli=%s", stimuli_file)) begin
+      $fatal("Missing +stimuli=<file_path> argument");
     end
-    $display("Running test config %0d", testconfig_num);
+    $display("Using stimuli file: %s\n", stimuli_file);
 
-    stimuli_file = $sformatf("golden_pulser/stimuli_%0d.txt", testconfig_num);
-
-    $display("Opening stimuli file: %s", stimuli_file);
     ref_fd = $fopen(stimuli_file, "r");
     if (ref_fd == 0) begin
       $fatal("Failed to open stimuli file: %s", stimuli_file);
@@ -86,7 +93,7 @@ module tb_pulser;
         f2_switch = f2_switch_s[15:0];
         invert_out = invert_out_s[0];
         idle_out = idle_out_s[0];
-        expected_pulse = expected_pulse_s[0];
+        #1 expected_pulse = expected_pulse_s[0];
 
         // Read the expected pulse from the stimuli file
         // void'($fscanf(ref_fd, "%d\n", expected_pulse));
@@ -102,16 +109,17 @@ module tb_pulser;
     end
 
     $fclose(ref_fd);
-    $display("Test config %0d completed: %0d cycles, %0d errors", testconfig_num, cycle, errors);
-    if (errors == 0) $display("PASS");
-    else $display("FAIL");
+    $display("Test completed: %0d cycles, %0d error(s)\n", cycle, errors);
+    if (errors == 0) $display("PASS\n");
+    else $display("FAIL\n");
 
+    $display("######### Test Output finished #########\n", stimuli_file);
     $finish;
   end
 
   initial begin
     $dumpfile("waveform.vcd");
-    $dumpvars(0, tb_pulser);
+    $dumpvars(0, tb_pulser_core);
   end
 
 endmodule

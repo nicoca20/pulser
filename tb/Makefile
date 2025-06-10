@@ -1,63 +1,102 @@
+# ------------------------------------------------------------
+# Tools and Binaries
+# ------------------------------------------------------------
+PYTHON         := python3
+SIMUL_COMMAND  := oseda -2025.01
+VERILATOR      := $(SIMUL_COMMAND) verilator
+
+# ------------------------------------------------------------
 # Directories
-TB_DIR := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
-RTL_DIR := $(TB_DIR)/../rtl
-OUTPUT_DIR := obj_dir
-TOP_MODULE := tb_pulser
-TESTCONFIG ?= 0  # Default test config
+# ------------------------------------------------------------
+TB_DIR         := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
+RTL_DIR        := $(TB_DIR)/../rtl
+COMMON_CELLS   := $(TB_DIR)/../../../../../rtl/common_cells
+OUTPUT_DIR     := obj_dir
+STIMULI_DIR    := golden_pulser
+TEMPFILE       := $(STIMULI_DIR)/merged_stimuli.txt
+STIMULI_PATTERN := $(STIMULI_DIR)/stimuli_0.txt
 
-# Verilator
-VERILATOR := oseda -2025.01 verilator
-VERILATOR_ARGS := --binary -j 0 -Wno-fatal
-VERILATOR_ARGS += -Wno-style -Wno-WIDTHEXPAND
-VERILATOR_ARGS += --timing --autoflush --trace --trace-structs
-VERILATOR_ARGS += --unroll-count 1 --unroll-stmts 1
-VERILATOR_ARGS += -I$(TB_DIR)/../../../../../rtl/common_cells/include
+# ------------------------------------------------------------
+# Verilator Configuration
+# ------------------------------------------------------------
+TOP_MODULE     := tb_pulser_core
+VERILATOR_ARGS := --binary -j 0 -Wno-fatal \
+                  -Wno-style -Wno-WIDTHEXPAND \
+                  --timing --autoflush --trace --trace-structs \
+                  --unroll-count 1 --unroll-stmts 1 \
+                  -I$(COMMON_CELLS)/include
 
-# Source files
 VERILOG_SOURCES := \
-	$(RTL_DIR)/pulser.sv \
-	$(TB_DIR)/tb_pulser.sv \
-	$(TB_DIR)/../../../../../rtl/common_cells/counter.sv \
-	$(TB_DIR)/../../../../../rtl/common_cells/delta_counter.sv
+	$(RTL_DIR)/pulser_core.sv \
+	$(TB_DIR)/tb_pulser_core.sv \
+	$(COMMON_CELLS)/counter.sv \
+	$(COMMON_CELLS)/delta_counter.sv
 
-# Target binary
 OUTPUT_BIN := $(OUTPUT_DIR)/V$(TOP_MODULE)
 
-# Default target: Compile only
+# ------------------------------------------------------------
+# Targets
+# ------------------------------------------------------------
+
+all: $(OUTPUT_BIN) merge_stimuli
+	@echo "Simulation build complete. Use 'make run' to simulate with merged stimuli."
+
 compile: $(OUTPUT_BIN)
 
 $(OUTPUT_BIN): $(VERILOG_SOURCES)
 	$(VERILATOR) $(VERILATOR_ARGS) --top $(TOP_MODULE) $(VERILOG_SOURCES)
 
-# Generate simulation data using Python script
-generate_simdata:
-	python3 gen_pulser_golden.py
+$(STIMULI_PATTERN): gen_pulser_golden.py
+	@echo "Generating stimuli..."
+	@mkdir -p $(STIMULI_DIR)
+	$(PYTHON) gen_pulser_golden.py
 
-# Compile and run all test configs
-all: generate_simdata compile run_all
-
-# Run a specific test config (use `make run TESTCONFIG=X`)
-run: $(OUTPUT_BIN)
-	@if [ -z "$(TESTCONFIG)" ]; then \
-		echo "Error: TESTCONFIG variable not set! Use 'make run TESTCONFIG=X'"; \
-		exit 1; \
-	fi
-	@echo "Running testconfig $(TESTCONFIG)..."
-	oseda -2025.01 ./obj_dir/Vtb_pulser +testconfig=$(TESTCONFIG)
-
-# Run all test configs sequentially
-run_all: $(OUTPUT_BIN)
-	@for i in $(shell seq 0 11); do \
-		if [ ! -f "golden_pulser/config_$${i}.txt" ]; then \
-			echo "Skipping testconfig $${i} (file missing)..."; \
-			continue; \
-		fi; \
-		echo "Running testconfig $${i}..."; \
-		oseda -2025.01 ./obj_dir/Vtb_pulser +testconfig=$${i}; \
+# Rule to merge all stimuli into one
+$(TEMPFILE): $(STIMULI_PATTERN)
+	@echo "Merging stimuli files into $(TEMPFILE)..."
+	@rm -f $(TEMPFILE)
+	@head -n 1 $(STIMULI_DIR)/stimuli_0.txt > $(TEMPFILE)
+	@for file in $$(ls $(STIMULI_DIR)/stimuli_*.txt | sed -E 's/.*stimuli_([0-9]+)\.txt/\1 &/' | sort -n | cut -d' ' -f2); do \
+		if [ "$$file" != "$(STIMULI_DIR)/stimuli_0.txt" ]; then \
+			tail -n +2 "$$file" >> $(TEMPFILE); \
+		fi \
 	done
 
-# Clean simulation output
-clean:
-	rm -rf obj_dir logs *.vcd golden_pulser
 
-.PHONY: compile all run run_all clean generate_simdata
+# Merge all stimuli files into one
+merge_stimuli: $(STIMULI_PATTERN)
+	@echo "Merging stimuli files into $(TEMPFILE)..."
+	@rm -f $(TEMPFILE)
+	@head -n 1 $(STIMULI_DIR)/stimuli_0.txt > $(TEMPFILE)
+	@for file in $$(ls $(STIMULI_DIR)/stimuli_*.txt | sed -E 's/.*stimuli_([0-9]+)\.txt/\1 &/' | sort -n | cut -d' ' -f2); do \
+		if [ "$$file" != "$(STIMULI_DIR)/stimuli_0.txt" ]; then \
+			tail -n +2 "$$file" >> $(TEMPFILE); \
+		fi \
+	done
+
+# Run simulation with a specific test configuration
+TESTCONFIG ?= 0
+test_cfg: $(OUTPUT_BIN)
+	@echo "Running testconfig $(TESTCONFIG)..."
+	$(SIMUL_COMMAND) ./$(OUTPUT_BIN) +stimuli=$(STIMULI_DIR)/stimuli_$(TESTCONFIG).txt
+
+# Run simulation using merged stimuli
+run: $(OUTPUT_BIN) $(TEMPFILE)
+	@echo "Running simulation with merged stimuli file..."
+	@$(SIMUL_COMMAND) ./$(OUTPUT_BIN) +stimuli=$(TEMPFILE)
+
+# Cleanup
+clean:
+	rm -rf $(OUTPUT_DIR) logs *.vcd $(STIMULI_DIR)
+
+# Display available commands
+help:
+	@echo "Available targets:"
+	@echo "  all              - Generate stimuli, merge them, compile, and prepare for simulation"
+	@echo "  compile          - Compile Verilog sources using Verilator"
+	@echo "  run              - Run simulation with merged stimuli"
+	@echo "  test_cfg         - Run simulation with specific stimuli file (use TESTCONFIG=<n>)"
+	@echo "  clean            - Remove build output and temporary files"
+	@echo "  help             - Show this help message"
+
+.PHONY: compile all run test_cfg clean merge_stimuli help
