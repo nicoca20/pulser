@@ -4,6 +4,7 @@
 // Licensed under Solderpad Hardware License, Version 0.51, see LICENSE for details.
 //
 // Nico Canzani <ncanzani@student.ethz.ch>
+
 {
   name: "pulser_general",
   clock_primary: "clk_i",
