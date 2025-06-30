@@ -1,9 +1,10 @@
 # Pulser
 [![SHL-0.51 License](https://img.shields.io/badge/license-SHL--0.51-green)](LICENSE)
 
-This project was created as part of a semester thesis at the Integrated Systems Laboratory (IIS), ETH Zurich, focusing on open-source ultrasound pulser IP development for the CROC SoC and PULP platform.
-It was developed by Nico Canzani under the supervision of Federico Villani and Alessandro Ottaviano.
-Feel free to contact them in case of questions.
+## Introduction
+
+This repository was created as part of a semester thesis at the Integrated Systems Laboratory (IIS), ETH Zurich, focusing on open-source ultrasound pulser IP development for the PULP platform.
+It was developed by [Nico Canzani](https://github.com/nicoca20) under the supervision of [Federico Villani](https://github.com/villanif) and [Alessandro Ottaviano](https://github.com/alex96295).
 
 **Pulser** is a SystemVerilog-based project that generates precisely timed output pulses with fully configurable parameters. It includes:
 - A complete RTL implementation (`pulser.sv` & `pulser_core.sv`)
